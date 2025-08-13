@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "2625735888",
+    "project_id": "whats-where",
+    "storage_bucket": "whats-where.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:2625735888:android:356cf5cb0574f7f768e2d5",
+        "android_client_info": {
+          "package_name": "com.example.whatswhere"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "2625735888-88ebmds5rb01sc9l7f3tfvmpb678kjkc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCgcUQM8GDfWo4_EWMNfFhT7lWW_D2VFPc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "2625735888-88ebmds5rb01sc9l7f3tfvmpb678kjkc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

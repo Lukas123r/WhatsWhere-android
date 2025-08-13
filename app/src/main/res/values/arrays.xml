@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="item_categories">
+        <item>Uncategorized</item>
+        <item>Electronics</item>
+        <item>Documents</item>
+        <item>Tools</item>
+        <item>Clothing</item>
+        <item>Kitchen</item>
+        <item>Books</item>
+        <item>Hobby</item>
+        <item>Other</item>
+    </string-array>
+
+    <string-array name="predefined_tags">
+        <item>Important</item>
+        <item>Urgent</item>
+        <item>Personal</item>
+        <item>Work</item>
+        <item>Archived</item>
+        <item>Valuable</item>
+        <item>Fragile</item>
+        <item>Sentimental</item>
+        <item>Replace Soon</item>
+        <item>Winter</item>
+        <item>Spring</item>
+        <item>Summer</item>
+        <item>Autumn</item>
+        <item>Christmas</item>
+        <item>Easter</item>
+        <item>Living Room</item>
+        <item>Bedroom</item>
+        <item>Garage</item>
+        <item>Basement</item>
+        <item>Attic</item>
+        <item>Office</item>
+        <item>To Sell</item>
+        <item>To Donate</item>
+        <item>To Repair</item>
+        <item>Lent Out</item>
+        <item>Invoice</item>
+        <item>Contract</item>
+        <item>Manual</item>
+        <item>Warranty</item>
+        <item>Certificate</item>
+    </string-array>
+
+    <string-array name="theme_entries">
+        <item>Light</item>
+        <item>Dark</item>
+        <item>System default</item>
+    </string-array>
+
+    <string-array name="theme_values">
+        <item>light</item>
+        <item>dark</item>
+        <item>system</item>
+    </string-array>
+    <string-array name="sort_options">
+        <item>Sort by Name (A-Z)</item>
+        <item>Sort by Name (Z-A)</item>
+        <item>Sort by Date (Newest first)</item>
+        <item>Sort by Date (Oldest first)</item>
+    </string-array>
+
+    <string-array name="language_entries">
+        <item>English</item>
+        <item>Deutsch (German)</item>
+        <item>Español (Spanish)</item>
+        <item>Français (French)</item>
+        <item>Italiano (Italian)</item>
+    </string-array>
+    <string-array name="language_values">
+        <item>en</item>
+        <item>de</item>
+        <item>es</item>
+        <item>fr</item>
+        <item>it</item>
+    </string-array>
+</resources>

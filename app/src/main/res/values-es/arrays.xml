@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="theme_entries">
+        <item>Claro</item>
+        <item>Oscuro</item>
+        <item>Predeterminado del sistema</item>
+    </string-array>
+    <string-array name="sort_options">
+        <item>Ordenar por nombre (A-Z)</item>
+        <item>Ordenar por nombre (Z-A)</item>
+        <item>Ordenar por fecha (Más recientes primero)</item>
+        <item>Ordenar por fecha (Más antiguos primero)</item>
+    </string-array>
+</resources>

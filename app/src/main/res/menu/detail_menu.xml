@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_share"
+        android:icon="@drawable/ic_share"
+        android:title="@string/menu_share"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_generate_qr"
+        android:icon="@drawable/ic_qr_code_themed"
+        android:title="@string/menu_generate_qr"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_lend_item"
+        android:title="@string/menu_lend_item"
+        app:showAsAction="never" />
+</menu>

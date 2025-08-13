@@ -1,0 +1,82 @@
+plugins {
+    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.googleKsp)
+    id 'kotlin-parcelize'
+    // KORREKTUR: Das Plugin muss hier auch angewendet werden
+    id 'com.google.gms.google-services'
+}
+
+android {
+    namespace 'com.example.whatswhere'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId "com.example.whatswhere"
+        minSdk 24
+        targetSdk 36
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+        coreLibraryDesugaringEnabled true
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+dependencies {
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+    implementation libs.androidx.fragment.ktx
+    implementation libs.androidx.recyclerview
+    implementation libs.androidx.core.splashscreen
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.appcompat
+    implementation libs.material
+    implementation libs.androidx.constraintlayout
+    implementation libs.androidx.activity
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
+    implementation libs.androidx.lifecycle.viewmodel.ktx
+    implementation libs.androidx.lifecycle.livedata.ktx
+    implementation libs.room.runtime
+    ksp libs.room.compiler
+    implementation libs.room.ktx
+    implementation libs.kotlinx.coroutines.core
+    implementation libs.kotlinx.coroutines.android
+    implementation libs.glide
+    implementation libs.androidx.camera.core
+    implementation libs.androidx.camera.camera2
+    implementation libs.androidx.camera.lifecycle
+    implementation libs.androidx.camera.view
+    implementation libs.zxing.core
+    implementation libs.journeyapps.zxing.android.embedded
+    implementation "androidx.preference:preference-ktx:1.2.1"
+    implementation "androidx.work:work-runtime-ktx:2.9.0"
+
+    // Firebase Bill of Materials (BoM)
+    // KORREKTUR: Wir verwenden eine aktuelle, stabile BoM-Version
+    implementation platform('com.google.firebase:firebase-bom:33.1.2')
+
+    // Firebase SDKs (ohne Versionsnummern, da die BoM das steuert)
+    implementation libs.firebase.auth
+    implementation libs.firebase.firestore
+    implementation libs.firebase.storage
+    implementation libs.play.services.auth
+    implementation(libs.androidx.swiperefreshlayout)
+}

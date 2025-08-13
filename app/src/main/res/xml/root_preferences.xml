@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="@string/notifications_category_title">
+        <SwitchPreferenceCompat
+            app:key="notifications_master"
+            app:title="@string/notifications_master_title"
+            app:summary="@string/notifications_master_summary"
+            app:defaultValue="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/appearance_category_title">
+        <ListPreference
+            app:key="theme"
+            app:title="@string/theme_title"
+            app:summary="@string/theme_summary"
+            app:entries="@array/theme_entries"
+            app:entryValues="@array/theme_values"
+            app:defaultValue="system"
+            app:useSimpleSummaryProvider="true" />
+
+        <!-- NEUE EINSTELLUNG FÜR DIE SPRACHAUSWAHL -->
+        <ListPreference
+            app:key="language"
+            app:title="@string/language_title"
+            app:summary="@string/language_summary"
+            app:entries="@array/language_entries"
+            app:entryValues="@array/language_values"
+            app:defaultValue="en"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/data_category_title">
+        <Preference
+            app:key="clear_cache"
+            app:title="@string/clear_cache_title"
+            app:summary="@string/clear_cache_summary" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="@string/info_category_title">
+        <Preference
+            app:key="app_version"
+            app:title="@string/app_version_title"
+            app:summary="1.0.0" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

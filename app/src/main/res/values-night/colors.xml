@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="app_background">#000000</color>
+
+    <color name="surface_primary">#1A1A1A</color>
+    <color name="surface_secondary">#1C1C1E</color>
+    <color name="surface_tertiary">#2C2C2E</color>
+
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#8D8D92</color>
+    <color name="text_placeholder">#545458</color>
+
+    <color name="accent_red">#FF0000</color>
+    <color name="accent_green">#08AF44</color>
+    <color name="accent_blue">#0047C5</color>
+    <color name="accent_red_ripple">#33FF0000</color>
+
+    <color name="stroke_medium">#38383A</color>
+</resources>
