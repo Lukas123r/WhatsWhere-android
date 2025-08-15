@@ -14,7 +14,7 @@ enum class SortOrder {
 }
 
 data class ItemListState(
-    val filteredAndSortedList: List<ItemWithTags>,
+    val filteredAndSortedList: List<Item>,
     val isDatabaseEmpty: Boolean
 )
 
@@ -24,9 +24,6 @@ class MainViewModel(
 ) : AndroidViewModel(application) {
 
     private val _searchQuery = MutableStateFlow("")
-    private val _selectedCategoryKey = MutableStateFlow("chip_all")
-    val selectedCategoryKey: StateFlow<String> = _selectedCategoryKey.asStateFlow()
-
     private val _sortOrder = MutableStateFlow(SortOrder.BY_NAME_ASC)
     val sortOrder: StateFlow<SortOrder> = _sortOrder.asStateFlow()
 
@@ -36,53 +33,34 @@ class MainViewModel(
     private val _syncMessage = MutableSharedFlow<String>()
     val syncMessage: SharedFlow<String> = _syncMessage.asSharedFlow()
 
-    private val _allCategories = MutableStateFlow<List<Category>>(emptyList())
-    val allCategories: StateFlow<List<Category>> = _allCategories.asStateFlow()
-
     private val _viewType = MutableStateFlow(ViewType.LIST)
     val viewType: StateFlow<ViewType> = _viewType.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            itemDao.getAllCategories().collect {
-                _allCategories.value = it
-            }
-        }
         loadViewPreference()
     }
 
     val itemListState: StateFlow<ItemListState> =
         combine(
-            itemDao.getAllItemsWithTags(),
+            itemDao.getAllItems(),
             _searchQuery,
-            _selectedCategoryKey,
-            _sortOrder,
-            _allCategories
-        ) { items, query, selectedCategoryKey, sortOrder, categories ->
+            _sortOrder
+        ) { items, query, sortOrder ->
 
-            val categoryMap = categories.associateBy { it.id }
-
-            val filteredItems = items.filter { itemWithTags ->
-                val item = itemWithTags.item
-                val categoryOfItem = categoryMap[item.categoryId]
-
-                val categoryMatch = selectedCategoryKey == "chip_all" || categoryOfItem?.nameKey == selectedCategoryKey
-
-                val searchMatch = query.isBlank() ||
+            val filteredItems = items.filter { item ->
+                query.isBlank() ||
                         item.name.contains(query, ignoreCase = true) ||
                         item.location.contains(query, ignoreCase = true) ||
                         item.description?.contains(query, ignoreCase = true) == true ||
                         item.serialNumber?.contains(query, ignoreCase = true) == true ||
-                        item.modelNumber?.contains(query, ignoreCase = true) == true ||
-                        itemWithTags.tags.any { it.nameKey.contains(query, ignoreCase = true) }
-                categoryMatch && searchMatch
+                        item.modelNumber?.contains(query, ignoreCase = true) == true
             }
 
             val sortedItems = when (sortOrder) {
-                SortOrder.BY_NAME_ASC -> filteredItems.sortedBy { it.item.name }
-                SortOrder.BY_NAME_DESC -> filteredItems.sortedByDescending { it.item.name }
-                SortOrder.BY_DATE_NEWEST -> filteredItems.sortedByDescending { it.item.createdAt }
-                SortOrder.BY_DATE_OLDEST -> filteredItems.sortedBy { it.item.createdAt }
+                SortOrder.BY_NAME_ASC -> filteredItems.sortedBy { it.name }
+                SortOrder.BY_NAME_DESC -> filteredItems.sortedByDescending { it.name }
+                SortOrder.BY_DATE_NEWEST -> filteredItems.sortedByDescending { it.createdAt }
+                SortOrder.BY_DATE_OLDEST -> filteredItems.sortedBy { it.createdAt }
             }
 
             ItemListState(
@@ -96,7 +74,6 @@ class MainViewModel(
         )
 
     fun onSearchQueryChanged(query: String) { _searchQuery.value = query }
-    fun onCategorySelected(categoryKey: String) { _selectedCategoryKey.value = categoryKey }
     fun onSortOrderSelected(sortOrder: SortOrder) { _sortOrder.value = sortOrder }
 
     fun toggleViewType() {

@@ -79,4 +79,5 @@ dependencies {
     implementation libs.firebase.storage
     implementation libs.play.services.auth
     implementation(libs.androidx.swiperefreshlayout)
+    implementation 'com.opencsv:opencsv:5.7.1'
 }

@@ -24,11 +24,11 @@ import com.example.whatswhere.ui.viewmodel.AccountViewModel
 import com.example.whatswhere.ui.viewmodel.AccountViewModelFactory
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.opencsv.CSVReader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.BufferedReader
 import java.io.FileOutputStream
 import java.io.InputStreamReader
 import java.text.NumberFormat
@@ -147,28 +147,21 @@ class AccountActivity : AppCompatActivity() {
                 contentResolver.openFileDescriptor(uri, "w")?.use {
                     FileOutputStream(it.fileDescriptor).use { fos ->
                         // Header-Zeile für die CSV
-                        fos.write("name,location,description,imagePath,categoryKey,quantity,purchaseDate,price,warrantyExpiration,serialNumber,modelNumber,tagKeys\n".toByteArray())
+                        fos.write("name,location,description,imagePath,quantity,purchaseDate,price,warrantyExpiration,serialNumber,modelNumber\n".toByteArray())
                         val dao = (application as InventoryApp).database.itemDao()
-                        val itemsWithTags = dao.getAllItemsWithTags().first() // Hole alle Items mit ihren Tags
-                        val categories = dao.getAllCategories().first().associateBy { cat -> cat.id } // Hole alle Kategorien für Mapping
+                        val items = dao.getAllItems().first() // Hole alle Items
 
-                        itemsWithTags.forEach { itemWithTags ->
-                            val item = itemWithTags.item
-                            val categoryKey = categories[item.categoryId]?.nameKey ?: "category_general" // Fallback für Kategorie
-                            // KORREKTUR: Verwende tag.nameKey zum Exportieren
-                            val tagKeysString = itemWithTags.tags.joinToString(";") { tag -> tag.nameKey }
+                        items.forEach { item ->
                             val line = "\"${item.name.replace("\"", "\"\"")}\"," +
                                     "\"${item.location.replace("\"", "\"\"")}\"," +
                                     "\"${(item.description ?: "").replace("\"", "\"\"")}\"," +
                                     "\"${(item.imagePath ?: "").replace("\"", "\"\"")}\"," +
-                                    "\"$categoryKey\"," +
                                     "${item.quantity}," +
                                     "${item.purchaseDate ?: ""}," +
                                     "${item.price ?: ""}," +
                                     "${item.warrantyExpiration ?: ""}," +
                                     "\"${(item.serialNumber ?: "").replace("\"", "\"\"")}\"," +
-                                    "\"${(item.modelNumber ?: "").replace("\"", "\"\"")}\"," +
-                                    "\"$tagKeysString\"\n" // Beachte, dass tagKeysString Anführungszeichen enthalten kann, falls ein Key ; enthält
+                                    "\"${(item.modelNumber ?: "").replace("\"", "\"\"")}\"\n"
                             fos.write(line.toByteArray())
                         }
                     }
@@ -195,80 +188,35 @@ class AccountActivity : AppCompatActivity() {
             try {
                 val dao = (application as InventoryApp).database.itemDao()
                 contentResolver.openInputStream(uri)?.use { inputStream ->
-                    BufferedReader(InputStreamReader(inputStream)).use { reader ->
-                        val header = reader.readLine() // Lese und ignoriere die Header-Zeile
-                        if (header == null) {
-                            withContext(Dispatchers.Main) {
-                                Toast.makeText(this@AccountActivity, "CSV file is empty or header is missing.", Toast.LENGTH_LONG).show()
-                            }
-                            return@use
-                        }
-
-                        var line: String?
-                        while (reader.readLine().also { line = it } != null) {
-                            // Einfache CSV-Analyse, die problematisch sein kann, wenn Felder Kommas enthalten.
-                            // Für eine robustere Lösung eine CSV-Parsing-Bibliothek in Betracht ziehen.
-                            val tokens = line!!.split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)".toRegex())
-                                .map { it.trim().removeSurrounding("\"") } // Entferne äußere Anführungszeichen und trimme
-
-                            if (tokens.size < 12) { // Erwarte mindestens 12 Felder basierend auf dem Export-Header
-                                Log.w("AccountActivity", "Skipping malformed CSV line: $line")
-                                continue
-                            }
-
-                            val categoryKey = tokens[4]
-                            var category = dao.getCategoryByNameKey(categoryKey)
-                            if (category == null) {
-                                val newCatId = dao.insertCategory(Category(nameKey = categoryKey))
-                                category = Category(id = newCatId, nameKey = categoryKey)
-                            }
-
-                            // Erstelle eine neue ID für das Item, da die CSV keine IDs enthält, oder entscheide, wie IDs gehandhabt werden.
-                            // Hier wird für jedes importierte Item eine neue ID in Firestore und lokal generiert.
-                            val newDocRefId = FirestoreManager.getItemsCollection().document().id
-                            val item = Item(
-                                id = newDocRefId, // Neue ID für das importierte Item
-                                userId = currentUser.uid,
-                                name = tokens[0],
-                                location = tokens[1],
-                                description = tokens[2].ifEmpty { null },
-                                imagePath = tokens[3].ifEmpty { null },
-                                categoryId = category.id,
-                                quantity = tokens[5].toIntOrNull() ?: 1,
-                                purchaseDate = tokens[6].toLongOrNull(),
-                                price = tokens[7].toDoubleOrNull(),
-                                warrantyExpiration = tokens[8].toLongOrNull(),
-                                serialNumber = tokens[9].ifEmpty { null },
-                                modelNumber = tokens[10].ifEmpty { null },
-                                createdAt = System.currentTimeMillis(),
-                                tagsString = tokens[11], // Speichere den rohen String für eine spätere Synchronisation
-                                needsSync = true // Markiere als zu synchronisierend mit der Cloud
-                            )
-
-                            // Zuerst in Firestore speichern (optional, abhängig von deiner Sync-Strategie)
-                            // Wenn du direkt in Firestore speicherst, setze needsSync ggf. auf false
-                            // Für dieses Beispiel gehen wir davon aus, dass der SyncManager das später handhabt.
-                            // FirestoreManager.saveItem(item)
-
-                            dao.insert(item) // In die lokale Datenbank einfügen
-                            val itemId = item.id // Die ID des gerade eingefügten Items
-
-                            val tagKeys = tokens[11].split(";").map { it.trim() }.filter { it.isNotBlank() }
-                            val itemTagCrossRefs = mutableListOf<ItemTagCrossRef>()
-
-                            tagKeys.forEach { tagKey ->
-                                // KORREKTUR: Verwende getTagByNameKey
-                                var tag = dao.getTagByNameKey(tagKey)
-                                if (tag == null) {
-                                    // KORREKTUR: Verwende nameKey und setze isPredefined = false
-                                    val newTag = Tag(nameKey = tagKey, isPredefined = false)
-                                    val newTagId = dao.insertTag(newTag)
-                                    tag = Tag(id = newTagId, nameKey = tagKey, isPredefined = false)
+                    InputStreamReader(inputStream).use { reader ->
+                        CSVReader(reader).use { csvReader ->
+                            csvReader.readNext() // Skip header
+                            var tokens: Array<String>?
+                            while (csvReader.readNext().also { tokens = it } != null) {
+                                if (tokens == null || tokens!!.size < 10) {
+                                    Log.w("AccountActivity", "Skipping malformed CSV line: ${tokens?.joinToString(",")}")
+                                    continue
                                 }
-                                itemTagCrossRefs.add(ItemTagCrossRef(itemId, tag.id))
-                            }
-                            if (itemTagCrossRefs.isNotEmpty()) {
-                                dao.insertItemTagCrossRefs(itemTagCrossRefs)
+
+                                val newDocRefId = FirestoreManager.getItemsCollection().document().id
+                                val item = Item(
+                                    id = newDocRefId,
+                                    userId = currentUser.uid,
+                                    name = tokens!![0],
+                                    location = tokens!![1],
+                                    description = tokens!![2].ifEmpty { null },
+                                    imagePath = tokens!![3].ifEmpty { null },
+                                    quantity = tokens!![4].toIntOrNull() ?: 1,
+                                    purchaseDate = tokens!![5].toLongOrNull(),
+                                    price = tokens!![6].toDoubleOrNull(),
+                                    warrantyExpiration = tokens!![7].toLongOrNull(),
+                                    serialNumber = tokens!![8].ifEmpty { null },
+                                    modelNumber = tokens!![9].ifEmpty { null },
+                                    createdAt = System.currentTimeMillis(),
+                                    needsSync = true
+                                )
+
+                                dao.insert(item)
                             }
                         }
                     }
@@ -276,7 +224,7 @@ class AccountActivity : AppCompatActivity() {
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@AccountActivity, getString(R.string.toast_import_success), Toast.LENGTH_SHORT).show()
                 }
-            } catch(e: Exception) {
+            } catch (e: Exception) {
                 Log.e("AccountActivity", "Error importing data from URI: ${e.message}", e)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@AccountActivity, getString(R.string.toast_import_failed, e.message), Toast.LENGTH_LONG).show()
@@ -285,4 +233,3 @@ class AccountActivity : AppCompatActivity() {
         }
     }
 }
-

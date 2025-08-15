@@ -19,7 +19,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.whatswhere.InventoryApp
 import com.example.whatswhere.R
-import com.example.whatswhere.data.Category
+import com.example.whatswhere.data.Item
 import com.example.whatswhere.databinding.ActivityMainBinding
 import com.example.whatswhere.ui.adapter.ItemAdapter
 import com.example.whatswhere.ui.adapter.ViewType
@@ -27,7 +27,6 @@ import com.example.whatswhere.ui.dialog.SortSelectionDialogFragment
 import com.example.whatswhere.ui.viewmodel.MainViewModel
 import com.example.whatswhere.ui.viewmodel.MainViewModelFactory
 import com.example.whatswhere.ui.viewmodel.SortOrder
-import com.google.android.material.chip.Chip
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
@@ -93,14 +92,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        adapter = ItemAdapter { itemWithTags, itemView ->
+        adapter = ItemAdapter { item, itemView ->
             val intent = Intent(this, DetailActivity::class.java).apply {
-                putExtra(DetailActivity.EXTRA_ITEM_ID, itemWithTags.item.id)
+                putExtra(DetailActivity.EXTRA_ITEM_ID, item.id)
             }
             val options = ActivityOptionsCompat.makeSceneTransitionAnimation(
                 this,
                 itemView,
-                "item_image_${itemWithTags.item.id}"
+                "item_image_${item.id}"
             )
             startActivity(intent, options.toBundle())
         }
@@ -112,11 +111,7 @@ class MainActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch {
                     mainViewModel.itemListState.collect { state ->
-                        // KORREKTUR: Übergibt die übersetzten Kategorienamen an den Adapter.
-                        val translatedCategories = mainViewModel.allCategories.value.map {
-                            it.id to it.getDisplayName(this@MainActivity)
-                        }.toMap()
-                        adapter.submitData(state.filteredAndSortedList, translatedCategories)
+                        adapter.submitList(state.filteredAndSortedList)
 
                         val resultsAreEmpty = state.filteredAndSortedList.isEmpty()
                         binding.recyclerView.visibility = if (resultsAreEmpty) View.GONE else View.VISIBLE
@@ -125,16 +120,10 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 launch {
-                    mainViewModel.allCategories.collect { categories ->
-                        setupCategoryFilters(categories)
-                    }
-                }
-                launch {
                     mainViewModel.syncMessage.collect { message ->
                         Toast.makeText(this@MainActivity, message, Toast.LENGTH_LONG).show()
                     }
                 }
-                // KORREKTUR: Beobachtet den Ansichtstyp aus dem ViewModel.
                 launch {
                     mainViewModel.viewType.collect { viewType ->
                         updateLayoutManager(viewType)
@@ -199,7 +188,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // KORREKTUR: Aktualisiert den LayoutManager basierend auf dem ViewModel-Zustand.
     private fun updateLayoutManager(viewType: ViewType) {
         val toggleButton = binding.toolbar.findViewById<ImageButton>(R.id.view_toggle_button)
         if (viewType == ViewType.GRID) {
@@ -210,53 +198,6 @@ class MainActivity : AppCompatActivity() {
             binding.recyclerView.layoutManager = LinearLayoutManager(this)
             adapter.setViewType(ViewType.LIST)
             toggleButton.setImageResource(R.drawable.ic_view_grid)
-        }
-    }
-
-    private fun setupCategoryFilters(categories: List<Category>) {
-        binding.categoryChipGroup.removeAllViews()
-
-        // "Alle" Chip
-        val allChip = layoutInflater.inflate(R.layout.chip_filter, binding.categoryChipGroup, false) as Chip
-        allChip.text = getString(R.string.chip_all)
-        // KORREKTUR: Wir speichern den Schlüssel als Tag, um ihn später zu identifizieren.
-        allChip.tag = "chip_all"
-        allChip.id = View.generateViewId()
-        binding.categoryChipGroup.addView(allChip)
-
-        // Andere Kategorien
-        categories.forEach { category ->
-            val chip = layoutInflater.inflate(R.layout.chip_filter, binding.categoryChipGroup, false) as Chip
-            // KORREKTUR: Verwendet die Hilfsfunktion, um den übersetzten Namen zu erhalten.
-            chip.text = category.getDisplayName(this)
-            chip.tag = category.nameKey // Speichert den Schlüssel im Tag
-            chip.id = View.generateViewId()
-            binding.categoryChipGroup.addView(chip)
-        }
-
-        // KORREKTUR: Wählt den richtigen Chip basierend auf dem Schlüssel im ViewModel aus.
-        val selectedKey = mainViewModel.selectedCategoryKey.value
-        val chipToSelect = binding.categoryChipGroup.findViewWithTag<Chip>(selectedKey)
-        if (chipToSelect != null) {
-            binding.categoryChipGroup.check(chipToSelect.id)
-        } else {
-            // Fallback auf "Alle"
-            val allChipToSelect = binding.categoryChipGroup.findViewWithTag<Chip>("chip_all")
-            allChipToSelect?.let { binding.categoryChipGroup.check(it.id) }
-        }
-
-
-        binding.categoryChipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
-            if (checkedIds.isEmpty()) {
-                val allChipToSelect = group.findViewWithTag<Chip>("chip_all")
-                allChipToSelect?.let { group.check(it.id) }
-                return@setOnCheckedStateChangeListener
-            }
-            val selectedChip: Chip? = group.findViewById(checkedIds.first())
-            selectedChip?.let {
-                // KORREKTUR: Übergibt den Schlüssel an das ViewModel.
-                mainViewModel.onCategorySelected(it.tag as String)
-            }
         }
     }
 }

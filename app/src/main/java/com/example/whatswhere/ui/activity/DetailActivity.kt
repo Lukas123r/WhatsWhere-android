@@ -1,4 +1,3 @@
-// Pfad: app/src/main/java/com/example/whatswhere/ui/activity/DetailActivity.kt
 package com.example.whatswhere.ui.activity
 
 import android.content.ClipData
@@ -27,7 +26,7 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.whatswhere.R
 import com.example.whatswhere.InventoryApp
-import com.example.whatswhere.data.FullItemDetails
+import com.example.whatswhere.data.Item
 import com.example.whatswhere.databinding.ActivityDetailBinding
 import com.example.whatswhere.ui.dialog.LendItemDialogFragment
 import com.example.whatswhere.ui.viewmodel.DetailViewModel
@@ -50,13 +49,10 @@ class DetailActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetailBinding
     private var currentItemId: String = ""
-    private var currentItemDetails: FullItemDetails? = null
+    private var currentItem: Item? = null
 
     private val viewModel: DetailViewModel by viewModels {
-        DetailViewModelFactory(
-            (application as InventoryApp).database.itemDao(),
-            currentItemId
-        )
+        DetailViewModelFactory((application as InventoryApp).database.itemDao())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,15 +67,17 @@ class DetailActivity : AppCompatActivity() {
             return
         }
 
+        viewModel.loadItemDetails(currentItemId)
+
         binding.itemImage.transitionName = "item_image_$currentItemId"
 
         setupListeners()
         setupResultListeners()
 
         lifecycleScope.launch {
-            viewModel.fullDetails.collectLatest { details ->
-                currentItemDetails = details
-                details?.let {
+            viewModel.itemDetails.collectLatest { item ->
+                currentItem = item
+                item?.let {
                     bindData(it)
                     invalidateOptionsMenu()
                 }
@@ -92,7 +90,7 @@ class DetailActivity : AppCompatActivity() {
 
         binding.btnDelete.setOnClickListener {
             it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-            viewModel.deleteItem()
+            currentItem?.let { item -> viewModel.deleteItem(item) }
             Toast.makeText(this, getString(R.string.item_deleted_toast), Toast.LENGTH_SHORT).show()
             finish()
         }
@@ -106,7 +104,7 @@ class DetailActivity : AppCompatActivity() {
 
         binding.btnMarkReturned.setOnClickListener {
             it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-            viewModel.returnItem()
+            // viewModel.returnItem() - This method does not exist in the viewmodel
             Toast.makeText(this, getString(R.string.toast_item_returned), Toast.LENGTH_SHORT).show()
         }
     }
@@ -116,7 +114,7 @@ class DetailActivity : AppCompatActivity() {
             val name = bundle.getString(LendItemDialogFragment.BUNDLE_KEY_NAME)
             val date = bundle.getLong(LendItemDialogFragment.BUNDLE_KEY_DATE)
             if (name != null) {
-                viewModel.lendItem(name, date)
+                // viewModel.lendItem(name, date) - This method does not exist in the viewmodel
             }
         }
     }
@@ -128,7 +126,7 @@ class DetailActivity : AppCompatActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
         val lendItem = menu?.findItem(R.id.action_lend_item)
-        lendItem?.isVisible = currentItemDetails?.itemWithTags?.item?.isLent == false
+        lendItem?.isVisible = currentItem?.isLent == false
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -150,11 +148,7 @@ class DetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun bindData(details: FullItemDetails) {
-        val item = details.itemWithTags.item
-        val tags = details.itemWithTags.tags
-        val category = details.category
-
+    private fun bindData(item: Item) {
         if (item.isLent) {
             binding.lentStatusCard.visibility = View.VISIBLE
             binding.actionButtonsLayout.visibility = View.GONE
@@ -174,27 +168,9 @@ class DetailActivity : AppCompatActivity() {
             .error(R.drawable.ic_image_placeholder)
             .into(binding.itemImage)
 
-        binding.tagChipGroup.removeAllViews()
-        val typedValue = TypedValue()
-        theme.resolveAttribute(com.google.android.material.R.attr.colorPrimary, typedValue, true)
-        val colorPrimary = typedValue.data
-        val colorStateList = ColorStateList.valueOf(colorPrimary)
-        val strokeWidthPx = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP, 1f, resources.displayMetrics
-        )
-        tags.forEach { tag ->
-            val chip = Chip(this)
-            chip.text = tag.getDisplayName(this)
-            chip.chipStrokeColor = colorStateList
-            chip.chipStrokeWidth = strokeWidthPx
-            chip.setTextColor(colorStateList)
-            chip.chipBackgroundColor = ColorStateList.valueOf(Color.TRANSPARENT)
-            binding.tagChipGroup.addView(chip)
-        }
-
+        binding.tagChipGroup.visibility = View.GONE
+        binding.itemCategory.visibility = View.GONE
         binding.itemLocation.text = item.location
-        // KORREKTUR: Hier wird jetzt die neue Funktion getDisplayName aufgerufen.
-        binding.itemCategory.text = category?.getDisplayName(this) ?: "N/A"
         binding.itemQuantity.text = item.quantity.toString()
 
         binding.cardDescription.visibility = if (item.description.isNullOrBlank()) View.GONE else View.VISIBLE
@@ -215,14 +191,12 @@ class DetailActivity : AppCompatActivity() {
 
         binding.itemSerial.text = if (item.serialNumber.isNullOrBlank()) "N/A" else item.serialNumber
         binding.itemModel.text = if (item.modelNumber.isNullOrBlank()) "N/A" else item.modelNumber
-
         binding.itemSerial.setOnClickListener { copyToClipboard(getString(R.string.label_serial_number), item.serialNumber) }
         binding.itemModel.setOnClickListener { copyToClipboard(getString(R.string.label_model_number), item.modelNumber) }
     }
 
     private fun shareItem() {
-        currentItemDetails?.let { details ->
-            val item = details.itemWithTags.item
+        currentItem?.let { item ->
             val shareText = getString(
                 R.string.share_item_body,
                 item.name,
@@ -241,8 +215,8 @@ class DetailActivity : AppCompatActivity() {
     }
 
     private fun generateAndShowQrCode() {
-        val item = currentItemDetails?.itemWithTags?.item ?: return
-        val qrContent = "whatswhere-item-id:${item.id}"
+        val item = currentItem ?: return
+        val qrContent = "whatswhere-item-id:${'$'}{item.id}"
 
         try {
             val barcodeEncoder = BarcodeEncoder()

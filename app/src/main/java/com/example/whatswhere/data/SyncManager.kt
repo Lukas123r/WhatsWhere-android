@@ -10,7 +10,6 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.toObjects
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
@@ -33,26 +32,13 @@ class SyncManager(private val context: Context, private val itemDao: ItemDao) {
         }
         Log.d("SyncManager", "Found ${unsyncedItems.size} items to upload.")
 
-        // Wir müssen hier die ItemWithTags laden, um an die nameKeys der Tags zu kommen
-        // für die Erstellung des `tagsString` für Firestore.
-        val itemsWithTagsToSync = itemDao.getAllItemsWithTags().first()
-            .filter { localItemWithTags -> unsyncedItems.any { it.id == localItemWithTags.item.id } }
-
-
-        for (itemWithTags in itemsWithTagsToSync) {
+        for (itemToUpload in unsyncedItems) {
             try {
-                // Erstelle den `tagsString` aus den `nameKey`s der Tags
-                val tagKeys = itemWithTags.tags.map { it.nameKey }
-                val itemToUpload = itemWithTags.item.copy(
-                    tagsString = tagKeys.joinToString(";"),
-                    needsSync = false // Wird in Firestore direkt als synchronisiert markiert
-                )
-
-                FirestoreManager.saveItem(itemToUpload) // FirestoreManager.saveItem sollte das Item-Objekt direkt speichern
-                itemDao.update(itemToUpload) // Lokales Item als synchronisiert markieren (needsSync = false)
+                FirestoreManager.saveItem(itemToUpload.copy(needsSync = false)) // FirestoreManager.saveItem sollte das Item-Objekt direkt speichern
+                itemDao.update(itemToUpload.copy(needsSync = false)) // Lokales Item als synchronisiert markieren (needsSync = false)
                 Log.d("SyncManager", "Successfully uploaded item ${itemToUpload.id}")
             } catch (e: Exception) {
-                Log.e("SyncManager", "Error uploading item ${itemWithTags.item.id}: ${e.message}", e)
+                Log.e("SyncManager", "Error uploading item ${itemToUpload.id}: ${e.message}", e)
                 // Optional: Hier könntest du das Item nicht als synchronisiert markieren,
                 // damit es beim nächsten Mal erneut versucht wird.
                 // Aktuell wird es auch bei Fehler als synchronisiert markiert,
@@ -74,73 +60,26 @@ class SyncManager(private val context: Context, private val itemDao: ItemDao) {
 
         try {
             Log.d("SyncManager", "Starting syncCloudToLocal for user ${user.uid}")
-            // Annahme: Dein Item-Objekt, das aus Firestore kommt, enthält 'tagsString'
             val firestoreItems = FirestoreManager.getItemsCollection()
                 .whereEqualTo("userId", user.uid)
                 .get()
                 .await()
-                .toObjects<Item>() // Stellt sicher, dass Item die 'tagsString' Eigenschaft hat
+                .toObjects<Item>()
 
             Log.d("SyncManager", "Fetched ${firestoreItems.size} items from Firestore.")
 
             val database = (context.applicationContext as InventoryApp).database
 
             database.withTransaction {
-                // 1. Hole alle lokalen Items des aktuellen Benutzers (nur die Item-Entities)
-                //    Wir benötigen die IDs, um die zugehörigen ItemTagCrossRefs zu löschen.
-                //    Alternative: Wenn `deleteAllItemsByUserId` kaskadierend löscht, ist das nicht nötig.
-                //    Sicherheitshalber löschen wir die CrossRefs explizit.
-                val localUserItems = itemDao.getAllItemsWithTags().first()
-                    .filter { it.item.userId == user.uid }
-
-                localUserItems.forEach { itemWithTags ->
-                    itemDao.deleteTagsByItemId(itemWithTags.item.id)
-                }
-
-                // 2. Lösche alle Items des Benutzers aus der lokalen Datenbank
+                // 1. Lösche alle Items des Benutzers aus der lokalen Datenbank
                 itemDao.deleteAllItemsByUserId(user.uid)
-                Log.d("SyncManager", "Deleted local items and their tag associations for user ${user.uid}")
+                Log.d("SyncManager", "Deleted local items for user ${user.uid}")
 
-                // 3. Füge die Items aus Firestore ein und erstelle Tags/Verknüpfungen
+                // 2. Füge die Items aus Firestore ein
                 firestoreItems.forEach { firestoreItem ->
-                    // Das firestoreItem sollte seine ursprüngliche ID aus Firestore haben.
-                    // Beim Einfügen wird diese ID verwendet, da `onConflict = OnConflictStrategy.REPLACE`
-                    // in `ItemDao.insert(item: Item)` (falls du es so definiert hast)
-                    // oder wenn die ID Teil des PrimaryKeys ist und nicht autoGenerate.
-                    // Falls Item.id autoGenerate ist und du die Firestore ID behalten willst,
-                    // müsstest du dein Item-Objekt und Dao.insert anpassen.
-                    // Für den Moment nehmen wir an, firestoreItem.id ist die persistente ID.
                     itemDao.insert(firestoreItem.copy(needsSync = false)) // Als bereits synchronisiert markieren
                     Log.d("SyncManager", "Inserted/Updated item ${firestoreItem.id} from Firestore.")
-
-                    val tagKeysOrNames = if (firestoreItem.tagsString.isNullOrBlank()) {
-                        emptyList()
-                    } else {
-                        firestoreItem.tagsString!!.split(";")
-                            .map { it.trim() }
-                            .filter { it.isNotEmpty() }
-                    }
-
-                    if (tagKeysOrNames.isNotEmpty()) {
-                        val itemTagCrossRefs = mutableListOf<ItemTagCrossRef>()
-                        tagKeysOrNames.forEach { keyOrName ->
-                            var tag = itemDao.getTagByNameKey(keyOrName)
-                            if (tag == null) {
-                                // Tag existiert nicht, als benutzerdefiniertes Tag erstellen
-                                val newTag = Tag(nameKey = keyOrName, isPredefined = false)
-                                val newTagId = itemDao.insertTag(newTag)
-                                tag = Tag(id = newTagId, nameKey = keyOrName, isPredefined = false)
-                                Log.d("SyncManager", "Created new local tag '${keyOrName}' with id ${tag.id}")
-                            }
-                            itemTagCrossRefs.add(ItemTagCrossRef(firestoreItem.id, tag.id))
-                        }
-                        itemDao.insertItemTagCrossRefs(itemTagCrossRefs)
-                        Log.d("SyncManager", "Associated ${itemTagCrossRefs.size} tags with item ${firestoreItem.id}")
-                    }
                 }
-                // 4. Lösche verwaiste Tags (Tags ohne Verknüpfung zu irgendeinem Item)
-                itemDao.deleteOrphanedTags()
-                Log.d("SyncManager", "Deleted orphaned tags.")
             }
             Log.d("SyncManager", "syncCloudToLocal completed successfully.")
             return@withContext SyncResult.Success

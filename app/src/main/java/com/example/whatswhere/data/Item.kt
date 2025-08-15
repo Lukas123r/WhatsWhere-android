@@ -16,7 +16,6 @@ data class Item(
     val location: String = "",
     val description: String? = null,
     val imagePath: String? = null,
-    val categoryId: Long = 0,
     val quantity: Int = 1,
     val purchaseDate: Long? = null,
     val price: Double? = null,
@@ -27,7 +26,6 @@ data class Item(
     val isLent: Boolean = false,
     val lentTo: String? = null,
     val returnDate: Long? = null,
-    var tagsString: String = "",
     // NEUES FELD, um den Sync-Status zu verfolgen
     var needsSync: Boolean = false
 ) : Parcelable

@@ -3,12 +3,9 @@ package com.example.whatswhere.ui.activity
 import android.Manifest
 import android.app.DatePickerDialog
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
-import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log // Stelle sicher, dass dieser Import vorhanden ist, falls du Log verwendest
-import android.util.TypedValue
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
@@ -25,19 +22,13 @@ import com.bumptech.glide.Glide
 import com.example.whatswhere.R
 import com.example.whatswhere.InventoryApp
 import com.example.whatswhere.data.Item
-import com.example.whatswhere.data.ItemWithTags
-// import com.example.whatswhere.data.Tag // Wird indirekt über ItemWithTags und viewModel.allTags verwendet
 import com.example.whatswhere.databinding.ActivityAddItemBinding
-import com.example.whatswhere.ui.dialog.CategorySelectionDialogFragment
-import com.example.whatswhere.ui.dialog.TagSelectionDialogFragment
 import com.example.whatswhere.ui.viewmodel.AddItemViewModel
 import com.example.whatswhere.ui.viewmodel.AddItemViewModelFactory
 import com.google.android.material.button.MaterialButton
-import com.google.android.material.chip.Chip
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
@@ -54,8 +45,6 @@ class AddItemActivity : AppCompatActivity() {
     private var localImageUri: Uri? = null
     private var finalImageUrl: String? = null
 
-    private var selectedCategoryId: Long = -1
-    private val selectedTagIds = mutableSetOf<Long>()
     private var selectedPurchaseDate: Long? = null
     private var selectedWarrantyDate: Long? = null
     private var existingCreatedAt: Long = 0L
@@ -74,8 +63,6 @@ class AddItemActivity : AppCompatActivity() {
 
         setupResultLaunchers()
         setupDatePickers()
-        setupCategoryDialog()
-        setupTagDialog()
 
         if (currentItemId.isNotEmpty()) {
             binding.toolbar.title = getString(R.string.edit_item_title)
@@ -95,8 +82,8 @@ class AddItemActivity : AppCompatActivity() {
 
     private fun observeItemToEdit() {
         lifecycleScope.launch {
-            viewModel.itemToEdit.collect { itemWithTags ->
-                itemWithTags?.let {
+            viewModel.itemToEdit.collect { item ->
+                item?.let {
                     populateUiForEdit(it)
                     viewModel.clearItemToEdit() // Optional: ItemToEdit zurücksetzen, nachdem es geladen wurde
                 }
@@ -104,8 +91,7 @@ class AddItemActivity : AppCompatActivity() {
         }
     }
 
-    private fun populateUiForEdit(itemWithTags: ItemWithTags) {
-        val item = itemWithTags.item
+    private fun populateUiForEdit(item: Item) {
         binding.editTextName.setText(item.name)
         binding.editTextLocation.setText(item.location)
         binding.editTextDescription.setText(item.description)
@@ -129,13 +115,6 @@ class AddItemActivity : AppCompatActivity() {
             selectedWarrantyDate = it
             binding.editTextWarrantyDate.setText(formatDate(it))
         }
-
-        selectedCategoryId = item.categoryId
-        updateCategoryText()
-
-        selectedTagIds.clear()
-        selectedTagIds.addAll(itemWithTags.tags.map { it.id })
-        updateTagChips()
     }
 
     private fun setupResultLaunchers() {
@@ -249,8 +228,8 @@ class AddItemActivity : AppCompatActivity() {
             return
         }
 
-        if (name.isEmpty() || location.isEmpty() || selectedCategoryId == -1L) {
-            Toast.makeText(this, getString(R.string.name_and_location_category_cannot_be_empty), Toast.LENGTH_SHORT).show()
+        if (name.isEmpty() || location.isEmpty()) {
+            Toast.makeText(this, getString(R.string.name_and_location_cannot_be_empty), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -261,7 +240,6 @@ class AddItemActivity : AppCompatActivity() {
             location = location,
             description = binding.editTextDescription.text.toString().trim(),
             imagePath = finalImageUrl,
-            categoryId = selectedCategoryId,
             quantity = binding.editTextQuantity.text.toString().toIntOrNull() ?: 1,
             purchaseDate = selectedPurchaseDate,
             price = null, // Du hast hier kein Feld für den Preis, ggf. hinzufügen oder entfernen
@@ -269,10 +247,9 @@ class AddItemActivity : AppCompatActivity() {
             serialNumber = null, // Du hast hier kein Feld, ggf. hinzufügen oder entfernen
             modelNumber = null,  // Du hast hier kein Feld, ggf. hinzufügen oder entfernen
             createdAt = if (currentItemId.isNotEmpty()) existingCreatedAt else System.currentTimeMillis(),
-            tagsString = "", // Wird im ViewModel vor dem Speichern in Firestore befüllt
             needsSync = true // Immer als 'needsSync' markieren, SyncManager kümmert sich darum
         )
-        viewModel.saveOrUpdateItem(itemToSave, selectedTagIds.toList())
+        viewModel.saveOrUpdateItem(itemToSave)
         finish()
     }
 
@@ -383,82 +360,5 @@ class AddItemActivity : AppCompatActivity() {
 
     private fun formatDate(timestamp: Long): String {
         return SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(Date(timestamp))
-    }
-
-    private fun setupCategoryDialog() {
-        binding.editTextOpenCategoryDialog.setOnClickListener {
-            CategorySelectionDialogFragment.newInstance(selectedCategoryId)
-                .show(supportFragmentManager, CategorySelectionDialogFragment.TAG)
-        }
-        supportFragmentManager.setFragmentResultListener(CategorySelectionDialogFragment.REQUEST_KEY, this) { _, bundle ->
-            selectedCategoryId = bundle.getLong(CategorySelectionDialogFragment.BUNDLE_KEY_ID, -1L) // -1L als Default
-            updateCategoryText()
-        }
-    }
-
-    private fun updateCategoryText() {
-        if (selectedCategoryId != -1L) {
-            lifecycleScope.launch {
-                // viewModel.allCategories ist ein Flow, hole den aktuellen Wert
-                val category = viewModel.allCategories.first().find { it.id == selectedCategoryId }
-                binding.editTextOpenCategoryDialog.setText(category?.getDisplayName(this@AddItemActivity) ?: getString(R.string.select_category_hint))
-            }
-        } else {
-            binding.editTextOpenCategoryDialog.setText(getString(R.string.select_category_hint))
-        }
-    }
-
-    private fun setupTagDialog() {
-        binding.editTextOpenTagsDialog.setOnClickListener {
-            TagSelectionDialogFragment.newInstance(selectedTagIds.toLongArray())
-                .show(supportFragmentManager, TagSelectionDialogFragment.TAG)
-        }
-        supportFragmentManager.setFragmentResultListener(TagSelectionDialogFragment.REQUEST_KEY, this) { _, bundle ->
-            val newSelectedIds = bundle.getLongArray(TagSelectionDialogFragment.BUNDLE_KEY_IDS) ?: longArrayOf()
-            selectedTagIds.clear()
-            selectedTagIds.addAll(newSelectedIds.toSet()) // Konvertiere Array zu Set für einfache Operationen
-            updateTagChips()
-        }
-    }
-
-    private fun updateTagChips() {
-        lifecycleScope.launch {
-            val allTags = viewModel.allTags.first() // Hole alle verfügbaren Tags
-            binding.tagChipGroup.removeAllViews() // Entferne alte Chips
-
-            val typedValue = TypedValue()
-            theme.resolveAttribute(com.google.android.material.R.attr.colorPrimary, typedValue, true)
-            val colorPrimary = typedValue.data
-            val colorStateListPrimary = ColorStateList.valueOf(colorPrimary)
-            val strokeWidthPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1f, resources.displayMetrics)
-
-            if (selectedTagIds.isEmpty()) {
-                binding.tagChipGroup.visibility = View.GONE // Verstecke ChipGroup wenn keine Tags ausgewählt sind
-            } else {
-                binding.tagChipGroup.visibility = View.VISIBLE
-                selectedTagIds.forEach { id ->
-                    allTags.find { it.id == id }?.let { tag ->
-                        val chip = Chip(this@AddItemActivity).apply {
-                            text = tag.getDisplayName(this@AddItemActivity) // KORRIGIERT
-                            isCloseIconVisible = true // Mache das Schließen-Icon sichtbar
-                            chipStrokeColor = colorStateListPrimary
-                            chipStrokeWidth = strokeWidthPx
-                            setTextColor(colorStateListPrimary)
-                            chipBackgroundColor = ColorStateList.valueOf(Color.TRANSPARENT)
-                            // Eventuell anpassen, wie die Chips gestyled werden
-                            setOnCloseIconClickListener {
-                                selectedTagIds.remove(tag.id) // Entferne Tag aus der Auswahl
-                                updateTagChips() // Aktualisiere die Chip-Anzeige
-                            }
-                        }
-                        // Füge den Chip nicht hinzu, wenn er bereits entfernt wurde
-                        // (relevant wegen dem rekursiven Aufruf von updateTagChips im OnCloseIconClickListener)
-                        // Besser ist es, die Liste neu aufzubauen oder nur den einen Chip zu entfernen.
-                        // Für Einfachheit hier: Die Gruppe wird sowieso geleert und neu befüllt.
-                        binding.tagChipGroup.addView(chip)
-                    }
-                }
-            }
-        }
     }
 }

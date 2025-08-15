@@ -27,21 +27,21 @@ class WarrantyWorker(appContext: Context, workerParams: WorkerParameters) :
         }
 
         val itemDao = (applicationContext as InventoryApp).database.itemDao()
-        val allItems = itemDao.getAllItemsWithTags().first()
+        val allItems = itemDao.getAllItems().first()
         val expiringItems = mutableListOf<String>()
 
         val today = LocalDate.now()
         val thirtyDaysFromNow = today.plusDays(30)
 
-        allItems.forEach { itemWithTags ->
-            itemWithTags.item.warrantyExpiration?.let { timestamp ->
+        allItems.forEach { item ->
+            item.warrantyExpiration?.let { timestamp ->
                 val expirationDate = Instant.ofEpochMilli(timestamp)
                     .atZone(ZoneId.systemDefault())
                     .toLocalDate()
 
                 // Prüfen, ob das Ablaufdatum in der Zukunft liegt und innerhalb der nächsten 30 Tage
                 if (expirationDate.isAfter(today) && expirationDate.isBefore(thirtyDaysFromNow)) {
-                    expiringItems.add(itemWithTags.item.name)
+                    expiringItems.add(item.name)
                 }
             }
         }

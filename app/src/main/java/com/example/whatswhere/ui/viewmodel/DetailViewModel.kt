@@ -1,56 +1,40 @@
-// Pfad: app/src/main/java/com/example/whatswhere/ui/viewmodel/DetailViewModel.kt
 package com.example.whatswhere.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.whatswhere.data.FullItemDetails
+import com.example.whatswhere.data.Item
 import com.example.whatswhere.data.ItemDao
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalCoroutinesApi::class)
-class DetailViewModel(private val itemDao: ItemDao, private val itemId: String) : ViewModel() {
+class DetailViewModel(private val itemDao: ItemDao) : ViewModel() {
 
-    val fullDetails: StateFlow<FullItemDetails?> = itemDao.getItemWithTags(itemId)
-        .filterNotNull()
-        .flatMapLatest { itemWithTags ->
-            itemDao.getCategory(itemWithTags.item.categoryId).map { category ->
-                FullItemDetails(itemWithTags, category)
-            }
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = null
-        )
+    private val _itemDetails = MutableStateFlow<Item?>(null)
+    val itemDetails: StateFlow<Item?> = _itemDetails.asStateFlow()
 
-    fun deleteItem() {
+    fun loadItemDetails(itemId: String) {
         viewModelScope.launch {
-            fullDetails.value?.let { details ->
-                itemDao.delete(details.itemWithTags.item)
+            itemDao.getItem(itemId).collect {
+                _itemDetails.value = it
             }
         }
     }
 
-    fun lendItem(lentTo: String, returnDate: Long) {
+    fun deleteItem(item: Item) {
         viewModelScope.launch {
-            itemDao.updateLendingStatus(itemId, true, lentTo, returnDate)
-        }
-    }
-
-    fun returnItem() {
-        viewModelScope.launch {
-            itemDao.updateLendingStatus(itemId, false, null, null)
+            itemDao.delete(item)
         }
     }
 }
 
-class DetailViewModelFactory(private val itemDao: ItemDao, private val itemId: String) : ViewModelProvider.Factory {
+class DetailViewModelFactory(private val itemDao: ItemDao) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(DetailViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return DetailViewModel(itemDao, itemId) as T
+            return DetailViewModel(itemDao) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
