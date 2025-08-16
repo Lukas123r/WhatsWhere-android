@@ -5,14 +5,18 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 
+import com.example.whatswhere.data.dao.CategoryDao
+import com.example.whatswhere.data.dao.Category
+
 @Database(
-    entities = [Item::class],
-    version = 11,
+    entities = [Item::class, Category::class],
+    version = 15, // Increased version due to schema change (added categoryResourceId to Item)
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun itemDao(): ItemDao
+    abstract fun categoryDao(): CategoryDao
 
     companion object {
         @Volatile

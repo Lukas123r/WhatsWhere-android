@@ -14,6 +14,8 @@ data class Item(
     val userId: String = "",
     val name: String = "",
     val location: String = "",
+    val category: String = "",
+    val categoryResourceId: Int = 0,
     val description: String? = null,
     val imagePath: String? = null,
     val quantity: Int = 1,

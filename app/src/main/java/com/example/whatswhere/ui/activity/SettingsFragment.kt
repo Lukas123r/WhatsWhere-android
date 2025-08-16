@@ -46,7 +46,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
             }
             "language" -> {
                 val languageCode = sharedPreferences?.getString(key, "en") ?: "en"
-                LocaleHelper.setLocale(requireContext(), languageCode)
+                LocaleHelper.setLocale(languageCode)
                 // KORREKTUR: Eigene Bestätigungsmeldung anzeigen
                 Toast.makeText(requireContext(), getString(R.string.toast_language_changed), Toast.LENGTH_SHORT).show()
             }

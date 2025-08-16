@@ -64,7 +64,7 @@ class SyncManager(private val context: Context, private val itemDao: ItemDao) {
                 .whereEqualTo("userId", user.uid)
                 .get()
                 .await()
-                .toObjects<Item>()
+                .toObjects(Item::class.java)
 
             Log.d("SyncManager", "Fetched ${firestoreItems.size} items from Firestore.")
 

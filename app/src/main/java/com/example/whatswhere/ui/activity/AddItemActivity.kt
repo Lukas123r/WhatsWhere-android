@@ -29,6 +29,10 @@ import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
+import android.widget.ArrayAdapter
+import com.example.whatswhere.data.dao.Category
+import com.example.whatswhere.ui.dialog.CategorySelectionDialogFragment
+import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
 import java.io.File
 import java.text.SimpleDateFormat
@@ -38,7 +42,7 @@ class AddItemActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityAddItemBinding
     private val viewModel: AddItemViewModel by viewModels {
-        AddItemViewModelFactory((application as InventoryApp).database.itemDao())
+        AddItemViewModelFactory(application, (application as InventoryApp).database.itemDao(), (application as InventoryApp).categoryRepository)
     }
 
     private var currentItemId: String = ""
@@ -63,6 +67,7 @@ class AddItemActivity : AppCompatActivity() {
 
         setupResultLaunchers()
         setupDatePickers()
+        setupCategorySelector()
 
         if (currentItemId.isNotEmpty()) {
             binding.toolbar.title = getString(R.string.edit_item_title)
@@ -94,6 +99,7 @@ class AddItemActivity : AppCompatActivity() {
     private fun populateUiForEdit(item: Item) {
         binding.editTextName.setText(item.name)
         binding.editTextLocation.setText(item.location)
+        binding.editTextCategory.setText(item.category)
         binding.editTextDescription.setText(item.description)
         binding.editTextQuantity.setText(item.quantity.toString())
         existingCreatedAt = item.createdAt
@@ -220,6 +226,7 @@ class AddItemActivity : AppCompatActivity() {
     private fun saveItemToDatabase() {
         val name = binding.editTextName.text.toString().trim()
         val location = binding.editTextLocation.text.toString().trim()
+        val category = binding.editTextCategory.text.toString().trim()
         val currentUserId = Firebase.auth.currentUser?.uid
 
         if (currentUserId == null) {
@@ -228,8 +235,8 @@ class AddItemActivity : AppCompatActivity() {
             return
         }
 
-        if (name.isEmpty() || location.isEmpty()) {
-            Toast.makeText(this, getString(R.string.name_and_location_cannot_be_empty), Toast.LENGTH_SHORT).show()
+        if (name.isEmpty() || location.isEmpty() || category.isEmpty()) {
+            Toast.makeText(this, getString(R.string.name_and_location_category_cannot_be_empty), Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -238,6 +245,7 @@ class AddItemActivity : AppCompatActivity() {
             userId = if (currentItemId.isNotEmpty()) existingUserId ?: currentUserId else currentUserId, // Verwende bestehende oder aktuelle UserID
             name = name,
             location = location,
+            category = category,
             description = binding.editTextDescription.text.toString().trim(),
             imagePath = finalImageUrl,
             quantity = binding.editTextQuantity.text.toString().toIntOrNull() ?: 1,
@@ -249,7 +257,7 @@ class AddItemActivity : AppCompatActivity() {
             createdAt = if (currentItemId.isNotEmpty()) existingCreatedAt else System.currentTimeMillis(),
             needsSync = true // Immer als 'needsSync' markieren, SyncManager kümmert sich darum
         )
-        viewModel.saveOrUpdateItem(itemToSave)
+        viewModel.saveOrUpdateItem(itemToSave, category)
         finish()
     }
 
@@ -361,4 +369,22 @@ class AddItemActivity : AppCompatActivity() {
     private fun formatDate(timestamp: Long): String {
         return SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(Date(timestamp))
     }
+
+    private fun setupCategorySelector() {
+        binding.editTextCategory.setOnClickListener {
+            val selectedCategory = binding.editTextCategory.text.toString()
+            CategorySelectionDialogFragment.newInstance(selectedCategory)
+                .show(supportFragmentManager, CategorySelectionDialogFragment.TAG)
+        }
+
+        supportFragmentManager.setFragmentResultListener(
+            CategorySelectionDialogFragment.REQUEST_KEY,
+            this
+        ) { _, bundle ->
+            val selectedCategory = bundle.getString(CategorySelectionDialogFragment.BUNDLE_KEY_CATEGORY)
+            binding.editTextCategory.setText(selectedCategory)
+        }
+    }
+
+    
 }

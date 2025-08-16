@@ -11,7 +11,7 @@ object PredefinedDataInitializer {
     private const val PREFS_NAME = "app_prefs"
     private const val KEY_PREDEFINED_DATA_INITIALIZED = "predefined_data_initialized"
 
-    suspend fun initialize(context: Context, itemDao: ItemDao) {
+    suspend fun initialize(context: Context) {
         val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val initialized = prefs.getBoolean(KEY_PREDEFINED_DATA_INITIALIZED, false)
 

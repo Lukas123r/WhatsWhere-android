@@ -29,13 +29,14 @@ import com.example.whatswhere.ui.viewmodel.MainViewModelFactory
 import com.example.whatswhere.ui.viewmodel.SortOrder
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val mainViewModel: MainViewModel by viewModels {
-        MainViewModelFactory(application, (application as InventoryApp).database.itemDao())
+        MainViewModelFactory(application, (application as InventoryApp).database.itemDao(), (application as InventoryApp).categoryRepository)
     }
     private lateinit var adapter: ItemAdapter
     private var accountTextView: TextView? = null
@@ -49,6 +50,7 @@ class MainActivity : AppCompatActivity() {
 
         setupRecyclerView()
         observeViewModel()
+        setupCategoryChips()
         setupListeners()
         setupSortResultListener()
         setupSwipeToRefresh()
@@ -67,7 +69,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun checkUserStatus() {
         val user = Firebase.auth.currentUser
-        user?.reload()?.addOnFailureListener {
+        /*user?.reload()?.addOnFailureListener {
             Toast.makeText(this, "Your session has expired. Please log in again.", Toast.LENGTH_LONG).show()
             Firebase.auth.signOut()
             val intent = Intent(this, AuthActivity::class.java).apply {
@@ -75,7 +77,7 @@ class MainActivity : AppCompatActivity() {
             }
             startActivity(intent)
             finish()
-        }
+        }*/
     }
 
     private fun updateAccountIcon() {
@@ -127,6 +129,50 @@ class MainActivity : AppCompatActivity() {
                 launch {
                     mainViewModel.viewType.collect { viewType ->
                         updateLayoutManager(viewType)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setupCategoryChips() {
+        lifecycleScope.launch {
+            mainViewModel.categories.collect { categories ->
+                val chipGroup = binding.categoryChipGroup
+                chipGroup.removeAllViews()
+
+                // Add "All" chip first
+                val allChip = layoutInflater.inflate(R.layout.category_chip, chipGroup, false) as Chip
+                allChip.apply {
+                    text = getString(R.string.category_all) // Use getString for "All"
+                    isCheckable = true
+                    isChecked = true // "All" is checked by default
+                    id = View.generateViewId()
+                }
+                chipGroup.addView(allChip)
+
+                // Add other categories
+                val otherCategories = categories.filter { category ->
+                    // Filter out "All" category, whether it's from resource or plain string
+                    !(category.resourceId != 0 && category.resourceId == R.string.category_all) &&
+                    !(category.resourceId == 0 && category.name.lowercase() == getString(R.string.category_all).lowercase())
+                }
+                otherCategories.forEach { category ->
+                    val chip = layoutInflater.inflate(R.layout.category_chip, chipGroup, false) as Chip
+                    chip.apply {
+                        text = if (category.resourceId != 0) getString(category.resourceId) else category.name
+                        isCheckable = true
+                        id = View.generateViewId()
+                    }
+                    chipGroup.addView(chip)
+                }
+
+                chipGroup.setOnCheckedChangeListener { group, checkedId ->
+                    if (checkedId != -1) { // Add this check
+                        val chip = group.findViewById<Chip>(checkedId)
+                        mainViewModel.onCategorySelected(chip.text.toString())
+                    } else {
+                        mainViewModel.onCategorySelected(getString(R.string.category_all)) // Default to "All"
                     }
                 }
             }

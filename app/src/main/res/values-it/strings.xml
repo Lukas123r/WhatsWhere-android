@@ -176,10 +176,12 @@
     <string name="dialog_title_sort_by">Ordina per</string>
     <string name="dialog_button_apply">Applica</string>
     <string name="toast_language_changed">Lingua cambiata con successo</string>
-    <string name="category_general">Generale</string>
+    <string name="category_all">Tutti</string>
     <string name="category_documents">Documenti</string>
     <string name="category_electronics">Elettronica</string>
-    <string name="category_clothing">Abbigliamento</string>
+    <string name="category_household">Casalinghi</string>
+    <string name="category_miscellaneous">Varie</string>
+    <string name="category_office">Ufficio</string>
     <string name="category_tools">Attrezzi</string>
 
     <!-- VORDEFINIERTE TAGS - Italienische Übersetzungen -->

@@ -175,10 +175,12 @@
     <string name="dialog_title_sort_by">Sort by</string>
     <string name="dialog_button_apply">Apply</string>
     <string name="toast_language_changed">Language changed successfully</string>
-    <string name="category_general">General</string>
+    <string name="category_all">All</string>
     <string name="category_documents">Documents</string>
     <string name="category_electronics">Electronics</string>
-    <string name="category_clothing">Clothing</string>
+    <string name="category_household">Household</string>
+    <string name="category_miscellaneous">Miscellaneous</string>
+    <string name="category_office">Office</string>
     <string name="category_tools">Tools</string>
 
     <!-- VORDEFINIERTE TAGS - Schlüssel und Standardwerte (Englisch) -->

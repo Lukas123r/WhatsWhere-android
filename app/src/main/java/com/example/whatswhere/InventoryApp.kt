@@ -10,6 +10,10 @@ import com.example.whatswhere.data.AppDatabase
 import com.example.whatswhere.ui.NotificationHelper
 import com.example.whatswhere.ui.WarrantyWorker
 import com.example.whatswhere.ui.util.LocaleHelper
+import com.example.whatswhere.data.dao.Category
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class InventoryApp : Application() {
@@ -17,6 +21,21 @@ class InventoryApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        // Pre-populate categories
+        CoroutineScope(Dispatchers.IO).launch {
+            val categoryDao = database.categoryDao()
+            val categories = listOf(
+                Category(getString(R.string.category_all)),
+                Category(getString(R.string.category_documents)),
+                Category(getString(R.string.category_electronics)),
+                Category(getString(R.string.category_household)),
+                Category(getString(R.string.category_miscellaneous)),
+                Category(getString(R.string.category_office)),
+                Category(getString(R.string.category_tools))
+            )
+            categoryDao.insertAll(categories)
+        }
 
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
 
@@ -26,7 +45,7 @@ class InventoryApp : Application() {
 
         // Sprach-Einstellung laden
         val languageCode = sharedPreferences.getString("language", "en") ?: "en"
-        LocaleHelper.setLocale(this, languageCode)
+        LocaleHelper.setLocale(languageCode)
 
         // Benachrichtigungskanal erstellen und Worker planen
         NotificationHelper.createNotificationChannel(this)

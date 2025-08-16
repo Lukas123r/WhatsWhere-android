@@ -176,10 +176,12 @@
     <string name="dialog_title_sort_by">Trier par</string>
     <string name="dialog_button_apply">Appliquer</string>
     <string name="toast_language_changed">Langue changée avec succès</string>
-    <string name="category_general">Général</string>
+    <string name="category_all">Tous</string>
     <string name="category_documents">Documents</string>
     <string name="category_electronics">Électronique</string>
-    <string name="category_clothing">Vêtements</string>
+    <string name="category_household">Ménage</string>
+    <string name="category_miscellaneous">Divers</string>
+    <string name="category_office">Bureau</string>
     <string name="category_tools">Outils</string>
 
     <!-- VORDEFINIERTE TAGS - Französische Übersetzungen -->

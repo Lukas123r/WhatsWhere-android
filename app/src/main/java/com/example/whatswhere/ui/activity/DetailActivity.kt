@@ -112,7 +112,7 @@ class DetailActivity : AppCompatActivity() {
     private fun setupResultListeners() {
         supportFragmentManager.setFragmentResultListener(LendItemDialogFragment.REQUEST_KEY, this) { _, bundle ->
             val name = bundle.getString(LendItemDialogFragment.BUNDLE_KEY_NAME)
-            val date = bundle.getLong(LendItemDialogFragment.BUNDLE_KEY_DATE)
+            bundle.getLong(LendItemDialogFragment.BUNDLE_KEY_DATE)
             if (name != null) {
                 // viewModel.lendItem(name, date) - This method does not exist in the viewmodel
             }
@@ -169,7 +169,8 @@ class DetailActivity : AppCompatActivity() {
             .into(binding.itemImage)
 
         binding.tagChipGroup.visibility = View.GONE
-        binding.itemCategory.visibility = View.GONE
+        binding.itemCategory.visibility = View.VISIBLE
+        binding.itemCategory.text = if (item.categoryResourceId != 0) getString(item.categoryResourceId) else item.category
         binding.itemLocation.text = item.location
         binding.itemQuantity.text = item.quantity.toString()
 

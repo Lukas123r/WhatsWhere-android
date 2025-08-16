@@ -6,8 +6,11 @@ import androidx.lifecycle.*
 import com.example.whatswhere.R
 import com.example.whatswhere.data.*
 import com.example.whatswhere.ui.adapter.ViewType
+import com.example.whatswhere.data.dao.CategoryDao
+import com.example.whatswhere.data.dao.Category
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
+
+import com.example.whatswhere.data.CategoryRepository
 
 enum class SortOrder {
     BY_NAME_ASC, BY_NAME_DESC, BY_DATE_NEWEST, BY_DATE_OLDEST
@@ -18,14 +21,16 @@ data class ItemListState(
     val isDatabaseEmpty: Boolean
 )
 
-class MainViewModel(
-    application: Application,
-    private val itemDao: ItemDao
-) : AndroidViewModel(application) {
+
+
 
     private val _searchQuery = MutableStateFlow("")
     private val _sortOrder = MutableStateFlow(SortOrder.BY_NAME_ASC)
     val sortOrder: StateFlow<SortOrder> = _sortOrder.asStateFlow()
+    private val _category = MutableStateFlow("All")
+
+    val categories: StateFlow<List<Category>> = categoryRepository.getCategories()
+        .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     private val syncManager = SyncManager(application, itemDao)
     private val _isRefreshing = MutableStateFlow(false)
@@ -44,16 +49,19 @@ class MainViewModel(
         combine(
             itemDao.getAllItems(),
             _searchQuery,
-            _sortOrder
-        ) { items, query, sortOrder ->
+            _sortOrder,
+            _category
+        ) { items, query, sortOrder, category ->
 
             val filteredItems = items.filter { item ->
-                query.isBlank() ||
+                val matchesCategory = category == "All" || item.category == category
+                val matchesQuery = query.isBlank() ||
                         item.name.contains(query, ignoreCase = true) ||
                         item.location.contains(query, ignoreCase = true) ||
                         item.description?.contains(query, ignoreCase = true) == true ||
                         item.serialNumber?.contains(query, ignoreCase = true) == true ||
                         item.modelNumber?.contains(query, ignoreCase = true) == true
+                matchesCategory && matchesQuery
             }
 
             val sortedItems = when (sortOrder) {
@@ -75,6 +83,7 @@ class MainViewModel(
 
     fun onSearchQueryChanged(query: String) { _searchQuery.value = query }
     fun onSortOrderSelected(sortOrder: SortOrder) { _sortOrder.value = sortOrder }
+    fun onCategorySelected(category: String) { _category.value = category }
 
     fun toggleViewType() {
         _viewType.value = if (_viewType.value == ViewType.LIST) ViewType.GRID else ViewType.LIST
@@ -115,13 +124,15 @@ class MainViewModel(
 
 class MainViewModelFactory(
     private val application: Application,
-    private val itemDao: ItemDao
+    private val itemDao: ItemDao,
+    private val categoryRepository: CategoryRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return MainViewModel(application, itemDao) as T
+            return MainViewModel(application, itemDao, categoryRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
+

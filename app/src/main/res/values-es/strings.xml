@@ -176,10 +176,12 @@
     <string name="dialog_title_sort_by">Ordenar por</string>
     <string name="dialog_button_apply">Aplicar</string>
     <string name="toast_language_changed">Idioma cambiado con éxito</string>
-    <string name="category_general">General</string>
+    <string name="category_all">Todos</string>
     <string name="category_documents">Documentos</string>
     <string name="category_electronics">Electrónica</string>
-    <string name="category_clothing">Ropa</string>
+    <string name="category_household">Hogar</string>
+    <string name="category_miscellaneous">Varios</string>
+    <string name="category_office">Oficina</string>
     <string name="category_tools">Herramientas</string>
 
     <!-- VORDEFINIERTE TAGS - Spanische Übersetzungen -->

@@ -176,10 +176,12 @@
     <string name="dialog_title_sort_by">Sortieren nach</string>
     <string name="dialog_button_apply">Anwenden</string>
     <string name="toast_language_changed">Sprache erfolgreich geändert</string>
-    <string name="category_general">Allgemein</string>
+    <string name="category_all">Alle</string>
     <string name="category_documents">Dokumente</string>
     <string name="category_electronics">Elektronik</string>
-    <string name="category_clothing">Kleidung</string>
+    <string name="category_household">Haushalt</string>
+    <string name="category_miscellaneous">Sonstiges</string>
+    <string name="category_office">Büro</string>
     <string name="category_tools">Werkzeuge</string>
 
     <!-- VORDEFINIERTE TAGS - Deutsche Übersetzungen -->
