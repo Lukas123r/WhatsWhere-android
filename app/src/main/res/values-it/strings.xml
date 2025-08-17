@@ -84,8 +84,7 @@
     <string name="category_label">Categoria *</string>
     <string name="select_category_hint">Seleziona una categoria…</string>
     <string name="quantity_label">Quantità</string>
-    <string name="tags_label">Tag</string>
-    <string name="add_edit_tags_hint">Aggiungi / Modifica tag</string>
+    
     <string name="description_label">Descrizione</string>
     <string name="gift_from_mom_hint">es. un regalo della mamma</string>
     <string name="purchase_date_label">Data di acquisto</string>
@@ -108,8 +107,7 @@
     <string name="share_item_subject">Dettagli articolo: %s</string>
     <string name="share_item_body">Articolo: %1$s\nPosizione: %2$s\nN. serie: %3$s\nN. modello: %4$s</string>
     <string name="qr_error_toast">Errore: Impossibile generare il codice QR.</string>
-    <string name="select_or_create_tags_title">Seleziona o crea tag</string>
-    <string name="create_add_tag_hint">Crea e aggiungi un tag…</string>
+    
     <string name="dialog_change_password_title">Cambia password</string>
     <string name="hint_current_password">Password attuale</string>
     <string name="hint_new_password">Nuova password</string>
@@ -184,23 +182,9 @@
     <string name="category_office">Ufficio</string>
     <string name="category_tools">Attrezzi</string>
 
-    <!-- VORDEFINIERTE TAGS - Italienische Übersetzungen -->
-    <!-- Die 'name'-Attribute (Schlüssel) müssen mit denen in values/strings.xml übereinstimmen -->
-    <string name="predefined_tag_urgent">Urgente</string>
-    <string name="predefined_tag_important">Importante</string>
-    <string name="predefined_tag_work">Lavoro</string>
-    <string name="predefined_tag_personal">Personale</string>
-    <string name="predefined_tag_warranty">Garanzia</string>
-    <string name="predefined_tag_travel">Viaggio</string>
-    <string name="predefined_tag_hobby">Hobby</string>
-    <string name="predefined_tag_storage">Archiviazione</string> <!-- oder "Conservazione" -->
-    <string name="predefined_tag_finance">Finanze</string>
-    <string name="predefined_tag_archive">Archivio</string>
-    <string name="predefined_tag_shopping_list">Lista della Spesa</string>
-    <string name="predefined_tag_to_do">Da Fare</string>
+    
 
-    <!-- Das string-array "predefined_tag_resource_keys" wird hier NICHT erneut definiert. -->
-    <!-- Die alten einzelnen "tag_..." Übersetzungen wurden entfernt. -->
+    
 
     <string name="name_and_location_category_cannot_be_empty">Nome, posizione e categoria non possono essere vuoti.</string>
 </resources>

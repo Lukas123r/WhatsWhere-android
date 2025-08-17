@@ -84,8 +84,7 @@
     <string name="category_label">Kategorie *</string>
     <string name="select_category_hint">Wähle eine Kategorie…</string>
     <string name="quantity_label">Menge</string>
-    <string name="tags_label">Tags</string>
-    <string name="add_edit_tags_hint">Tags hinzufügen / bearbeiten</string>
+    
     <string name="description_label">Beschreibung</string>
     <string name="gift_from_mom_hint">z.B. ein Geschenk von Mama</string>
     <string name="purchase_date_label">Kaufdatum</string>
@@ -108,8 +107,7 @@
     <string name="share_item_subject">Details zu Gegenstand: %s</string>
     <string name="share_item_body">Gegenstand: %1$s\nOrt: %2$s\nSeriennr.: %3$s\nModellnr.: %4$s</string>
     <string name="qr_error_toast">Fehler: QR-Code konnte nicht erstellt werden.</string>
-    <string name="select_or_create_tags_title">Tags auswählen oder erstellen</string>
-    <string name="create_add_tag_hint">Tag erstellen und hinzufügen…</string>
+    
     <string name="dialog_change_password_title">Passwort ändern</string>
     <string name="hint_current_password">Aktuelles Passwort</string>
     <string name="hint_new_password">Neues Passwort</string>
@@ -184,23 +182,9 @@
     <string name="category_office">Büro</string>
     <string name="category_tools">Werkzeuge</string>
 
-    <!-- VORDEFINIERTE TAGS - Deutsche Übersetzungen -->
-    <!-- Die 'name'-Attribute (Schlüssel) müssen mit denen in values/strings.xml übereinstimmen -->
-    <string name="predefined_tag_urgent">Dringend</string>
-    <string name="predefined_tag_important">Wichtig</string>
-    <string name="predefined_tag_work">Arbeit</string>
-    <string name="predefined_tag_personal">Persönlich</string>
-    <string name="predefined_tag_warranty">Garantie</string>
-    <string name="predefined_tag_travel">Reise</string>
-    <string name="predefined_tag_hobby">Hobby</string>
-    <string name="predefined_tag_storage">Lagerung</string> <!-- oder "Aufbewahrung" -->
-    <string name="predefined_tag_finance">Finanzen</string>
-    <string name="predefined_tag_archive">Archiv</string>
-    <string name="predefined_tag_shopping_list">Einkaufsliste</string>
-    <string name="predefined_tag_to_do">Zu Erledigen</string>
+    
 
-    <!-- Das string-array "predefined_tag_resource_keys" wird hier NICHT erneut definiert. -->
-    <!-- Die alten einzelnen "tag_..." Übersetzungen wurden entfernt. -->
+    
 
     <string name="name_and_location_category_cannot_be_empty">Name, Ort und Kategorie dürfen nicht leer sein.</string>
 </resources>

@@ -84,8 +84,7 @@
     <string name="category_label">Catégorie *</string>
     <string name="select_category_hint">Sélectionnez une catégorie…</string>
     <string name="quantity_label">Quantité</string>
-    <string name="tags_label">Étiquettes</string>
-    <string name="add_edit_tags_hint">Ajouter / Modifier des étiquettes</string>
+    
     <string name="description_label">Description</string>
     <string name="gift_from_mom_hint">ex: un cadeau de maman</string>
     <string name="purchase_date_label">Date d\'achat</string>
@@ -108,8 +107,7 @@
     <string name="share_item_subject">Détails de l\'article : %s</string>
     <string name="share_item_body">Article : %1$s\nEmplacement : %2$s\nN° de série : %3$s\nN° de modèle : %4$s</string>
     <string name="qr_error_toast">Erreur : Impossible de générer le code QR.</string>
-    <string name="select_or_create_tags_title">Sélectionner ou créer des étiquettes</string>
-    <string name="create_add_tag_hint">Créer et ajouter une étiquette…</string>
+    
     <string name="dialog_change_password_title">Changer le mot de passe</string>
     <string name="hint_current_password">Mot de passe actuel</string>
     <string name="hint_new_password">Nouveau mot de passe</string>
@@ -184,23 +182,9 @@
     <string name="category_office">Bureau</string>
     <string name="category_tools">Outils</string>
 
-    <!-- VORDEFINIERTE TAGS - Französische Übersetzungen -->
-    <!-- Die 'name'-Attribute (Schlüssel) müssen mit denen in values/strings.xml übereinstimmen -->
-    <string name="predefined_tag_urgent">Urgent</string>
-    <string name="predefined_tag_important">Important</string>
-    <string name="predefined_tag_work">Travail</string>
-    <string name="predefined_tag_personal">Personnel</string>
-    <string name="predefined_tag_warranty">Garantie</string>
-    <string name="predefined_tag_travel">Voyage</string>
-    <string name="predefined_tag_hobby">Loisir</string>
-    <string name="predefined_tag_storage">Stockage</string>
-    <string name="predefined_tag_finance">Finances</string>
-    <string name="predefined_tag_archive">Archive</string>
-    <string name="predefined_tag_shopping_list">Liste de Courses</string>
-    <string name="predefined_tag_to_do">À Faire</string>
+    
 
-    <!-- Das string-array "predefined_tag_resource_keys" wird hier NICHT erneut definiert. -->
-    <!-- Die alten einzelnen "tag_..." Übersetzungen wurden entfernt. -->
+    
 
     <string name="name_and_location_category_cannot_be_empty">Le nom, l\'emplacement et la catégorie ne peuvent pas être vides.</string>
 </resources>

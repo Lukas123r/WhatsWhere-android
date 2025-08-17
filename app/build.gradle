@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace 'com.example.whatswhere'
+    namespace 'de.lshorizon.whatswhere'
     compileSdk 36
 
     defaultConfig {
-        applicationId "com.example.whatswhere"
+        applicationId "de.lshorizon.whatswhere"
         minSdk 24
         targetSdk 36
         versionCode 1
@@ -78,7 +78,8 @@ dependencies {
     implementation libs.firebase.auth
     implementation libs.firebase.firestore
     implementation libs.firebase.storage
-    implementation libs.play.services.auth
+    implementation libs.credentials
+    implementation libs.googleid
     implementation(libs.androidx.swiperefreshlayout)
     implementation 'com.opencsv:opencsv:5.7.1'
 }

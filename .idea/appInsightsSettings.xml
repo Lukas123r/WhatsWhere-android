@@ -9,7 +9,7 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="com.example.whatswhere" />
+                  <option name="appId" value="de.lshorizon.whatswhere" />
                   <option name="mobileSdkAppId" value="1:2625735888:android:356cf5cb0574f7f768e2d5" />
                   <option name="projectId" value="whats-where" />
                   <option name="projectNumber" value="2625735888" />

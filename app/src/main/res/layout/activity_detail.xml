@@ -112,11 +112,7 @@
                 android:textColor="?attr/colorOnSurface"
                 tools:text="Passport" />
 
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/tag_chip_group"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp" />
+            
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_description"

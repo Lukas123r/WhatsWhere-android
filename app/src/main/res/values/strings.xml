@@ -83,8 +83,7 @@
     <string name="category_label">Category *</string>
     <string name="select_category_hint">Select a category…</string>
     <string name="quantity_label">Quantity</string>
-    <string name="tags_label">Tags</string>
-    <string name="add_edit_tags_hint">Add / Edit Tags</string>
+    
     <string name="description_label">Description</string>
     <string name="gift_from_mom_hint">e.g., a gift from Mom</string>
     <string name="purchase_date_label">Purchase Date</string>
@@ -107,8 +106,7 @@
     <string name="share_item_subject">Item Details: %s</string>
     <string name="share_item_body">Item: %1$s\nLocation: %2$s\nSerial No: %3$s\nModel No: %4$s</string>
     <string name="qr_error_toast">Error: Could not generate QR Code.</string>
-    <string name="select_or_create_tags_title">Select or Create Tags</string>
-    <string name="create_add_tag_hint">Create and add a tag…</string>
+    
     <string name="dialog_change_password_title">Change Password</string>
     <string name="hint_current_password">Current Password</string>
     <string name="hint_new_password">New Password</string>
@@ -183,41 +181,12 @@
     <string name="category_office">Office</string>
     <string name="category_tools">Tools</string>
 
-    <!-- VORDEFINIERTE TAGS - Schlüssel und Standardwerte (Englisch) -->
-    <!-- Die 'name'-Attribute hier sind die Schlüssel, die in der Datenbank gespeichert werden -->
-    <string name="predefined_tag_urgent">Urgent</string>
-    <string name="predefined_tag_important">Important</string> <!-- Dieser war schon ähnlich bei dir -->
-    <string name="predefined_tag_work">Work</string> <!-- Dieser war schon ähnlich bei dir -->
-    <string name="predefined_tag_personal">Personal</string> <!-- Dieser war schon ähnlich bei dir -->
-    <string name="predefined_tag_warranty">Warranty</string> <!-- Aus deinen alten tag_... Strings übernommen -->
-    <string name="predefined_tag_travel">Travel</string> <!-- Aus deinen alten tag_... Strings übernommen -->
-    <string name="predefined_tag_hobby">Hobby</string> <!-- Aus deinen alten tag_... Strings übernommen -->
-    <string name="predefined_tag_storage">Storage</string> <!-- Aus deinen alten tag_... Strings übernommen -->
-    <string name="predefined_tag_finance">Finance</string> <!-- Aus deinen alten tag_... Strings übernommen -->
-    <string name="predefined_tag_archive">Archive</string> <!-- Neu hinzugefügt als Beispiel -->
-    <string name="predefined_tag_shopping_list">Shopping List</string> <!-- Neu hinzugefügt als Beispiel -->
-    <string name="predefined_tag_to_do">To Do</string> <!-- Neu hinzugefügt als Beispiel -->
+    
 
-    <!-- Schlüssel-Array für den programmatischen Zugriff auf die vordefinierten Tags -->
-    <!-- Dieses Array enthält die 'name'-Attribute der oben definierten vordefinierten Tag-Strings -->
-    <string-array name="predefined_tag_resource_keys">
-        <item>predefined_tag_urgent</item>
-        <item>predefined_tag_important</item>
-        <item>predefined_tag_work</item>
-        <item>predefined_tag_personal</item>
-        <item>predefined_tag_warranty</item>
-        <item>predefined_tag_travel</item>
-        <item>predefined_tag_hobby</item>
-        <item>predefined_tag_storage</item>
-        <item>predefined_tag_finance</item>
-        <item>predefined_tag_archive</item>
-        <item>predefined_tag_shopping_list</item>
-        <item>predefined_tag_to_do</item>
-    </string-array>
+    
 
     <string name="name_and_location_category_cannot_be_empty">Name, location, and category cannot be empty.</string>
 
-    <!-- Die alten 'tag_...' Strings (tag_important, tag_warranty etc.) wurden entfernt,
-         da ihre Funktionalität nun von den 'predefined_tag_...' Strings abgedeckt wird. -->
+    
 
 </resources>

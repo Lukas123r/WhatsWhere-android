@@ -12,38 +12,7 @@
         <item>Other</item>
     </string-array>
 
-    <string-array name="predefined_tags">
-        <item>Important</item>
-        <item>Urgent</item>
-        <item>Personal</item>
-        <item>Work</item>
-        <item>Archived</item>
-        <item>Valuable</item>
-        <item>Fragile</item>
-        <item>Sentimental</item>
-        <item>Replace Soon</item>
-        <item>Winter</item>
-        <item>Spring</item>
-        <item>Summer</item>
-        <item>Autumn</item>
-        <item>Christmas</item>
-        <item>Easter</item>
-        <item>Living Room</item>
-        <item>Bedroom</item>
-        <item>Garage</item>
-        <item>Basement</item>
-        <item>Attic</item>
-        <item>Office</item>
-        <item>To Sell</item>
-        <item>To Donate</item>
-        <item>To Repair</item>
-        <item>Lent Out</item>
-        <item>Invoice</item>
-        <item>Contract</item>
-        <item>Manual</item>
-        <item>Warranty</item>
-        <item>Certificate</item>
-    </string-array>
+    
 
     <string-array name="theme_entries">
         <item>Light</item>

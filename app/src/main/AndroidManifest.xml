@@ -10,7 +10,7 @@
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <application
-        android:name=".InventoryApp"
+        android:name="de.lshorizon.whatswhere.InventoryApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -22,7 +22,7 @@
         android:localeConfig="@xml/locales_config">
 
         <activity
-            android:name=".ui.activity.AuthActivity"
+            android:name="de.lshorizon.whatswhere.ui.activity.AuthActivity"
             android:exported="true"
             android:theme="@style/Theme.App.Starting">
             <intent-filter>
@@ -32,24 +32,24 @@
         </activity>
 
         <activity
-            android:name=".ui.activity.MainActivity"
+            android:name="de.lshorizon.whatswhere.ui.activity.MainActivity"
             android:exported="false"
             android:theme="@style/Theme.WhatsWhere" />
         <activity
-            android:name=".ui.activity.DetailActivity"
+            android:name="de.lshorizon.whatswhere.ui.activity.DetailActivity"
             android:exported="false"
             android:theme="@style/Theme.WhatsWhere" />
         <activity
-            android:name=".ui.activity.AddItemActivity"
+            android:name="de.lshorizon.whatswhere.ui.activity.AddItemActivity"
             android:exported="false"
             android:theme="@style/Theme.WhatsWhere"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".ui.activity.AccountActivity"
+            android:name="de.lshorizon.whatswhere.ui.activity.AccountActivity"
             android:exported="false"
             android:theme="@style/Theme.WhatsWhere" />
         <activity
-            android:name=".ui.activity.SettingsActivity"
+            android:name="de.lshorizon.whatswhere.ui.activity.SettingsActivity"
             android:exported="false"
             android:theme="@style/Theme.WhatsWhere" />
 

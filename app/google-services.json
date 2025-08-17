@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:2625735888:android:356cf5cb0574f7f768e2d5",
         "android_client_info": {
-          "package_name": "com.example.whatswhere"
+          "package_name": "de.lshorizon.whatswhere"
         }
       },
       "oauth_client": [
