@@ -61,10 +61,19 @@
         android:text="Login" />
 
     <TextView
-        android:id="@+id/switch_auth_mode_text"
+        android:id="@+id/forgot_password_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:padding="8dp"
+        android:text="Forgot Password?"
+        android:textColor="?attr/colorPrimary" />
+
+    <TextView
+        android:id="@+id/switch_auth_mode_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
         android:padding="8dp"
         android:text="No account yet? Register"
         android:textColor="?attr/colorPrimary" />

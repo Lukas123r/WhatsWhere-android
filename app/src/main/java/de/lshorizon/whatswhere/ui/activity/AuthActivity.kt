@@ -1,7 +1,12 @@
 package de.lshorizon.whatswhere.ui.activity
 
+import android.app.Dialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.View
+import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
@@ -12,6 +17,7 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.lifecycle.lifecycleScope
+import com.google.android.gms.common.SignInButton
 import de.lshorizon.whatswhere.R
 import de.lshorizon.whatswhere.data.FirestoreManager
 import de.lshorizon.whatswhere.databinding.ActivityAuthBinding
@@ -21,7 +27,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import de.lshorizon.whatswhere.ui.activity.MainActivity
 import kotlinx.coroutines.launch
+import com.google.android.material.textfield.TextInputEditText
 
 class AuthActivity : AppCompatActivity() {
 
@@ -59,12 +67,14 @@ class AuthActivity : AppCompatActivity() {
             binding.authActionButton.text = "Login"
             binding.switchAuthModeText.text = "No account yet? Register"
             binding.passwordLayout.helperText = null
+            binding.forgotPasswordTextview.visibility = View.VISIBLE
         } else {
             binding.titleTextview.text = "Register"
             binding.subtitleTextview.text = "Create an account to get started"
             binding.authActionButton.text = "Register"
             binding.switchAuthModeText.text = "Already have an account? Login"
             binding.passwordLayout.helperText = getString(R.string.password_requirements)
+            binding.forgotPasswordTextview.visibility = View.GONE
         }
     }
 
@@ -83,6 +93,49 @@ class AuthActivity : AppCompatActivity() {
         binding.googleSigninButton.setOnClickListener {
             signInWithGoogle()
         }
+        binding.forgotPasswordTextview.setOnClickListener {
+            showForgotPasswordDialog()
+        }
+    }
+
+    private fun showForgotPasswordDialog() {
+        val dialog = Dialog(this)
+        dialog.setContentView(R.layout.dialog_reset_password)
+        dialog.window?.setBackgroundDrawableResource(R.drawable.dialog_background_rounded)
+
+        val width = (resources.displayMetrics.widthPixels * 0.90).toInt()
+        dialog.window?.setLayout(width, -2) // -2 is wrap_content
+
+        val emailEditText = dialog.findViewById<TextInputEditText>(R.id.email_edittext)
+        val sendButton = dialog.findViewById<Button>(R.id.send_button)
+        val cancelButton = dialog.findViewById<Button>(R.id.cancel_button)
+
+        sendButton.setOnClickListener {
+            val email = emailEditText.text.toString().trim()
+            if (email.isNotEmpty()) {
+                sendPasswordResetEmail(email)
+                dialog.dismiss()
+            } else {
+                Toast.makeText(this, "Please enter your email.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        cancelButton.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun sendPasswordResetEmail(email: String) {
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Toast.makeText(this, "Password reset email sent.", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Failed to send reset email: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
     }
 
     private fun signInWithGoogle() {
