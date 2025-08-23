@@ -33,6 +33,26 @@ class MainViewModel(
     private val _category = MutableStateFlow("All")
 
     val categories: StateFlow<List<Category>> = categoryRepository.getCategories()
+        .map { categories ->
+            val allCategory = Category("all", R.string.category_all)
+            val sortedCategories = categories
+                .filter { category ->
+                    val isAllCategoryByName = category.name.lowercase() == "all"
+                    val isAllCategoryByResourceId = category.resourceId == R.string.category_all
+                    !(isAllCategoryByName || isAllCategoryByResourceId)
+                }
+                .sortedBy { 
+                    if (it.resourceId != 0) {
+                        getApplication<Application>().getString(it.resourceId).lowercase()
+                    } else {
+                        it.name.lowercase()
+                    }
+                }
+            val finalCategories = mutableListOf<Category>()
+            finalCategories.add(allCategory)
+            finalCategories.addAll(sortedCategories)
+            finalCategories
+        }
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     private val syncManager = SyncManager(application, itemDao)
@@ -46,6 +66,7 @@ class MainViewModel(
 
     init {
         loadViewPreference()
+        onRefresh(isManual = false)
     }
 
     val itemListState: StateFlow<ItemListState> =
@@ -108,6 +129,7 @@ class MainViewModel(
     fun onRefresh(isManual: Boolean = false) {
         viewModelScope.launch {
             _isRefreshing.value = true
+            categoryRepository.syncCategories()
             syncManager.syncLocalToCloud()
             when (val result = syncManager.syncCloudToLocal()) {
                 is SyncResult.Success -> {

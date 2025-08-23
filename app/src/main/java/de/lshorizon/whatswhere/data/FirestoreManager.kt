@@ -51,11 +51,17 @@ object FirestoreManager {
         itemsCollection.document(item.id).set(item).await()
     }
 
-    suspend fun saveCategory(category: Category) {
-        categoriesCollection.document(category.name).set(category).await()
+    suspend fun deleteItem(item: Item) {
+        itemsCollection.document(item.id).delete().await()
     }
 
-    suspend fun getCategories(): List<Category> {
-        return categoriesCollection.get().await().documents.mapNotNull { it.toObject(Category::class.java) }
+    private fun getUserCategoriesCollection(userId: String) = usersCollection.document(userId).collection("categories")
+
+    suspend fun saveCategory(userId: String, category: Category) {
+        getUserCategoriesCollection(userId).document(category.name).set(category).await()
+    }
+
+    suspend fun getCategories(userId: String): List<Category> {
+        return getUserCategoriesCollection(userId).get().await().documents.mapNotNull { it.toObject(Category::class.java) }
     }
 }

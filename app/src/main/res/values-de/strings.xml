@@ -187,4 +187,7 @@
     
 
     <string name="name_and_location_category_cannot_be_empty">Name, Ort und Kategorie dürfen nicht leer sein.</string>
+    <string name="delete_item_confirmation_title">Gegenstand löschen?</string>
+    <string name="delete_item_confirmation_message">Sind Sie sicher, dass Sie diesen Gegenstand löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.</string>
+    <string name="cancel">Abbrechen</string>
 </resources>

@@ -187,4 +187,7 @@
     
 
     <string name="name_and_location_category_cannot_be_empty">Nome, posizione e categoria non possono essere vuoti.</string>
+    <string name="delete_item_confirmation_title">Eliminare l\'articolo?</string>
+    <string name="delete_item_confirmation_message">Sei sicuro di voler eliminare questo articolo? Questa azione non può essere annullata.</string>
+    <string name="cancel">Annulla</string>
 </resources>

@@ -3,6 +3,7 @@ package de.lshorizon.whatswhere.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import de.lshorizon.whatswhere.data.FirestoreManager
 import de.lshorizon.whatswhere.data.Item
 import de.lshorizon.whatswhere.data.ItemDao
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +27,7 @@ class DetailViewModel(private val itemDao: ItemDao) : ViewModel() {
     fun deleteItem(item: Item) {
         viewModelScope.launch {
             itemDao.delete(item)
+            FirestoreManager.deleteItem(item)
         }
     }
 }

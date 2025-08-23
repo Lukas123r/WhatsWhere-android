@@ -90,9 +90,7 @@ class DetailActivity : AppCompatActivity() {
 
         binding.btnDelete.setOnClickListener {
             it.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
-            currentItem?.let { item -> viewModel.deleteItem(item) }
-            Toast.makeText(this, getString(R.string.item_deleted_toast), Toast.LENGTH_SHORT).show()
-            finish()
+            showDeleteConfirmationDialog()
         }
 
         binding.btnEdit.setOnClickListener {
@@ -107,6 +105,22 @@ class DetailActivity : AppCompatActivity() {
             // viewModel.returnItem() - This method does not exist in the viewmodel
             Toast.makeText(this, getString(R.string.toast_item_returned), Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun showDeleteConfirmationDialog() {
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(R.string.delete_item_confirmation_title)
+            .setMessage(R.string.delete_item_confirmation_message)
+            .setPositiveButton(R.string.delete) { _, _ ->
+                lifecycleScope.launch {
+                    currentItem?.let { item -> viewModel.deleteItem(item) }
+                    Toast.makeText(this@DetailActivity, getString(R.string.item_deleted_toast), Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.RED)
     }
 
     private fun setupResultListeners() {

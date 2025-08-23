@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import de.lshorizon.whatswhere.data.dao.Category
 import de.lshorizon.whatswhere.databinding.DropdownItemBinding
 
-class CategoryAdapter(private val onCategoryClick: (Category) -> Unit) :
+class CategoryAdapter(private val onCategoryClick: (Category) -> Unit, private var selectedCategoryName: String?) :
     ListAdapter<Category, CategoryAdapter.CategoryViewHolder>(CategoryDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
@@ -18,16 +18,28 @@ class CategoryAdapter(private val onCategoryClick: (Category) -> Unit) :
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         val category = getItem(position)
-        holder.bind(category)
+        holder.bind(category, selectedCategoryName)
         holder.itemView.setOnClickListener {
             onCategoryClick(category)
         }
     }
 
+    fun setSelectedCategory(categoryName: String?) {
+        selectedCategoryName = categoryName
+        notifyDataSetChanged()
+    }
+
     class CategoryViewHolder(private val binding: DropdownItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(category: Category) {
-            binding.text1.text = category.name
+        fun bind(category: Category, selectedCategoryName: String?) {
+            val localizedCategoryName = if (category.resourceId != 0) {
+                binding.root.context.getString(category.resourceId)
+            } else {
+                category.name
+            }
+            binding.text1.text = localizedCategoryName
+
+            binding.selectionRadioButton.isChecked = localizedCategoryName == selectedCategoryName
         }
     }
 

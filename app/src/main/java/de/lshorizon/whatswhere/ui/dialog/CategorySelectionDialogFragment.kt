@@ -30,10 +30,12 @@ class CategorySelectionDialogFragment : DialogFragment() {
         )
     }
     private lateinit var categoryAdapter: CategoryAdapter
+    private var initialSelectedCategory: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, R.style.App_AlertDialogTheme)
+        initialSelectedCategory = arguments?.getString(ARG_SELECTED_CATEGORY)
     }
 
     override fun onCreateView(
@@ -70,17 +72,40 @@ class CategorySelectionDialogFragment : DialogFragment() {
     }
 
     private fun setupRecyclerView() {
-        categoryAdapter = CategoryAdapter {
-            setResult(it.name)
-        }
+        categoryAdapter = CategoryAdapter({
+            val localizedCategoryName = if (it.resourceId != 0) {
+                requireContext().getString(it.resourceId)
+            } else {
+                it.name
+            }
+            setResult(localizedCategoryName)
+        }, initialSelectedCategory)
         binding.recyclerViewCategories.adapter = categoryAdapter
     }
 
     private fun observeCategories() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.categories.collect { categories ->
-                val filteredCategories = categories.filter { it.name.lowercase() != "all" }
-                categoryAdapter.submitList(filteredCategories)
+                val allCategory = Category("all", R.string.category_all)
+                val sortedCategories = categories
+                    .filter { category ->
+                        val isAllCategoryByName = category.name.lowercase() == "all"
+                        val isAllCategoryByResourceId = category.resourceId == R.string.category_all
+                        !(isAllCategoryByName || isAllCategoryByResourceId)
+                    }
+                    .sortedBy { 
+                        if (it.resourceId != 0) {
+                            requireContext().getString(it.resourceId).lowercase()
+                        } else {
+                            it.name.lowercase()
+                        }
+                    }
+                val finalCategories = mutableListOf<Category>()
+                finalCategories.add(allCategory)
+                finalCategories.addAll(sortedCategories)
+                categoryAdapter.submitList(finalCategories)
+                // Update the selected category in the adapter after the list is submitted
+                categoryAdapter.setSelectedCategory(initialSelectedCategory)
             }
         }
     }

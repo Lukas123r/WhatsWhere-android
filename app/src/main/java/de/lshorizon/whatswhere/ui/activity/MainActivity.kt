@@ -156,7 +156,7 @@ class MainActivity : AppCompatActivity() {
                         isCheckable = true
                         id = View.generateViewId()
                         // Check the "All" chip by default
-                        if (category.name == "category_all") {
+                        if (category.name == "all") {
                             isChecked = true
                         }
                     }

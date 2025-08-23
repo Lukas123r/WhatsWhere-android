@@ -7,15 +7,30 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import de.lshorizon.whatswhere.R
 
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+
 class CategoryRepository(private val categoryDao: CategoryDao) {
 
-    fun getCategories(): Flow<List<Category>> = flow {
-        // First, emit categories from local database
-        emit(categoryDao.getCategories().first())
+    private val currentUserId: String?
+        get() = Firebase.auth.currentUser?.uid
 
-        // Then, try to fetch from Firebase
+    fun getCategories(): Flow<List<Category>> = categoryDao.getCategories()
+
+    suspend fun syncCategories() {
+        val userId = currentUserId ?: return
         try {
-            val firebaseCategories = FirestoreManager.getCategories()
+            val localCategories = categoryDao.getCategories().first()
+            val firebaseCategories = FirestoreManager.getCategories(userId)
+
+            // Identify local-only categories and push them to Firebase
+            val localOnlyCategories = localCategories.filter { localCategory ->
+                firebaseCategories.none { it.name == localCategory.name }
+            }
+            localOnlyCategories.forEach { localCategory ->
+                FirestoreManager.saveCategory(userId, localCategory)
+            }
+
             val predefinedCategoryNames = mapOf(
                 "all" to R.string.category_all,
                 "documents" to R.string.category_documents,
@@ -32,8 +47,6 @@ class CategoryRepository(private val categoryDao: CategoryDao) {
             }
 
             categoryDao.insertAll(categoriesToInsert)
-            // Emit the updated list (which now includes Firebase categories)
-            emit(categoryDao.getCategories().first())
         } catch (e: Exception) {
             // Handle error, e.g., log it
             e.printStackTrace()
@@ -41,11 +54,12 @@ class CategoryRepository(private val categoryDao: CategoryDao) {
     }
 
     suspend fun addCategory(category: Category) {
+        val userId = currentUserId ?: return
         // Save to local database
         categoryDao.insert(category)
         // Save to Firebase
         try {
-            FirestoreManager.saveCategory(category)
+            FirestoreManager.saveCategory(userId, category)
         } catch (e: Exception) {
             // Handle error, e.g., log it
             e.printStackTrace()
