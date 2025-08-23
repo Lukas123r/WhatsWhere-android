@@ -18,6 +18,7 @@ import de.lshorizon.whatswhere.ui.viewmodel.AddItemViewModel
 import de.lshorizon.whatswhere.ui.viewmodel.AddItemViewModelFactory
 import kotlinx.coroutines.launch
 
+/** Dialog that lets the user pick an existing category or create a new one. */
 class CategorySelectionDialogFragment : DialogFragment() {
 
     private lateinit var binding: DialogCategorySelectionBinding
