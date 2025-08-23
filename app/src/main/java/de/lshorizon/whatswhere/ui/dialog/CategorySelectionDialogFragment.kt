@@ -21,13 +21,10 @@ import kotlinx.coroutines.launch
 class CategorySelectionDialogFragment : DialogFragment() {
 
     private lateinit var binding: DialogCategorySelectionBinding
-    // Shared ViewModel with the hosting Activity; factory ensures required dependencies
+    // Use the Activity's ViewModel so category picks update shared state
     private val viewModel: AddItemViewModel by activityViewModels {
-        AddItemViewModelFactory(
-            requireActivity().application,
-            (requireActivity().application as InventoryApp).database.itemDao(),
-            (requireActivity().application as InventoryApp).categoryRepository
-        )
+        val app = requireActivity().application as InventoryApp
+        AddItemViewModelFactory(app, app.database.itemDao(), app.categoryRepository)
     }
     private lateinit var categoryAdapter: CategoryAdapter
 
