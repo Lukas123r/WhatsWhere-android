@@ -42,8 +42,7 @@ class InventoryApp : Application() {
     fun repopulateCategories() {
         CoroutineScope(Dispatchers.IO).launch {
             val categoryDao = database.categoryDao()
-            categoryDao.deleteAll()
-            val categories = listOf(
+            val predefinedCategories = listOf(
                 Category("category_all", R.string.category_all),
                 Category("category_documents", R.string.category_documents),
                 Category("category_electronics", R.string.category_electronics),
@@ -52,7 +51,12 @@ class InventoryApp : Application() {
                 Category("category_office", R.string.category_office),
                 Category("category_tools", R.string.category_tools)
             )
-            categoryDao.insertAll(categories)
+            predefinedCategories.forEach { category ->
+                // Only insert if the category does not already exist
+                if (categoryDao.getCategoryByName(category.name) == null) {
+                    categoryDao.insert(category)
+                }
+            }
         }
     }
 

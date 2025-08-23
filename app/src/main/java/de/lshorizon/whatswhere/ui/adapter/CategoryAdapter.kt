@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import de.lshorizon.whatswhere.data.dao.Category
 import de.lshorizon.whatswhere.databinding.DropdownItemBinding
 
-class CategoryAdapter(private val onCategoryClick: (Category) -> Unit) :
+class CategoryAdapter(private val onCategoryClick: (Category) -> Unit, private val selectedCategoryName: String?) :
     ListAdapter<Category, CategoryAdapter.CategoryViewHolder>(CategoryDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
@@ -18,7 +18,7 @@ class CategoryAdapter(private val onCategoryClick: (Category) -> Unit) :
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
         val category = getItem(position)
-        holder.bind(category)
+        holder.bind(category, selectedCategoryName)
         holder.itemView.setOnClickListener {
             onCategoryClick(category)
         }
@@ -26,8 +26,10 @@ class CategoryAdapter(private val onCategoryClick: (Category) -> Unit) :
 
     class CategoryViewHolder(private val binding: DropdownItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(category: Category) {
-            binding.text1.text = category.name
+        fun bind(category: Category, selectedCategoryName: String?) {
+            binding.text1.text = if (category.resourceId != 0) binding.text1.context.getString(category.resourceId) else category.name
+            val displayedCategoryName = if (category.resourceId != 0) binding.text1.context.getString(category.resourceId) else category.name
+            binding.selectionRadioButton.isChecked = displayedCategoryName == selectedCategoryName
         }
     }
 

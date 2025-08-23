@@ -56,7 +56,8 @@ class CategorySelectionDialogFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupRecyclerView()
+        val selectedCategory = arguments?.getString(ARG_SELECTED_CATEGORY)
+        setupRecyclerView(selectedCategory)
         observeCategories()
 
         binding.editTextNewCategory.setOnEditorActionListener { _, _, _ ->
@@ -69,18 +70,30 @@ class CategorySelectionDialogFragment : DialogFragment() {
         }
     }
 
-    private fun setupRecyclerView() {
-        categoryAdapter = CategoryAdapter {
-            setResult(it.name)
-        }
+    private fun setupRecyclerView(selectedCategory: String?) {
+        categoryAdapter = CategoryAdapter(onCategoryClick = { category ->
+            val displayedName = if (category.resourceId != 0) getString(category.resourceId) else category.name
+            setResult(displayedName)
+        }, selectedCategoryName = selectedCategory)
         binding.recyclerViewCategories.adapter = categoryAdapter
     }
 
     private fun observeCategories() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.categories.collect { categories ->
-                val filteredCategories = categories.filter { it.name.lowercase() != "all" }
-                categoryAdapter.submitList(filteredCategories)
+                val allCategory = categories.find { it.name.equals("category_all", ignoreCase = true) }
+                val otherCategories = categories.filter { !it.name.equals("category_all", ignoreCase = true) }
+                val sortedOtherCategories = otherCategories.sortedBy { category ->
+                    if (category.resourceId != 0) {
+                        getString(category.resourceId).lowercase()
+                    } else {
+                        category.name.lowercase()
+                    }
+                }
+                val finalSortedList = mutableListOf<de.lshorizon.whatswhere.data.dao.Category>()
+                allCategory?.let { finalSortedList.add(it) }
+                finalSortedList.addAll(sortedOtherCategories)
+                categoryAdapter.submitList(finalSortedList)
             }
         }
     }

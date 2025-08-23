@@ -57,7 +57,21 @@ class MainViewModel(
         ) { items, query, sortOrder, category ->
 
             val filteredItems = items.filter { item ->
-                val matchesCategory = category == "All" || item.category == category
+                val matchesCategory = if (category == "category_all") {
+                    true // "category_all" is the internal name for "All"
+                } else {
+                    // Compare item's category with the selected category's internal name or resource ID
+                    val selectedCategoryInternalName = category // 'category' now holds the internal name
+                    val selectedCategoryResourceId = categories.value.find { it.name == selectedCategoryInternalName }?.resourceId ?: 0
+
+                    if (item.categoryResourceId != 0 && selectedCategoryResourceId != 0) {
+                        // Both have resource IDs, compare them
+                        item.categoryResourceId == selectedCategoryResourceId
+                    } else {
+                        // Otherwise, compare by internal name (for user-created categories or if resource ID is missing)
+                        item.category == selectedCategoryInternalName
+                    }
+                }
                 val matchesQuery = query.isBlank() ||
                         item.name.contains(query, ignoreCase = true) ||
                         item.location.contains(query, ignoreCase = true) ||

@@ -49,12 +49,12 @@ class AddItemViewModel(application: Application, private val itemDao: ItemDao, p
             val user = Firebase.auth.currentUser
             if (user == null) return@launch
 
-            val selectedCategoryObject = categories.value.find { it.name == categoryName || (it.resourceId != 0 && getApplication<Application>().getString(it.resourceId) == categoryName) }
+            val selectedCategoryObject = categories.value.find { it.resourceId != 0 && getApplication<Application>().getString(it.resourceId) == categoryName }
             val categoryResourceId = selectedCategoryObject?.resourceId ?: 0
 
             var itemToSave = item.copy(
                 userId = user.uid,
-                category = categoryName, // Use the category name from UI
+                category = selectedCategoryObject?.name ?: categoryName, // Save the internal name
                 categoryResourceId = categoryResourceId, // Set the resource ID
                 needsSync = true
             )

@@ -99,7 +99,13 @@ class AddItemActivity : AppCompatActivity() {
     private fun populateUiForEdit(item: Item) {
         binding.editTextName.setText(item.name)
         binding.editTextLocation.setText(item.location)
-        binding.editTextCategory.setText(item.category)
+        val categoryObject = viewModel.categories.value.find { it.name == item.category }
+        val categoryDisplayName = if (categoryObject != null && categoryObject.resourceId != 0) {
+            getString(categoryObject.resourceId)
+        } else {
+            item.category
+        }
+        binding.editTextCategory.setText(categoryDisplayName)
         binding.editTextDescription.setText(item.description)
         binding.editTextQuantity.setText(item.quantity.toString())
         existingCreatedAt = item.createdAt

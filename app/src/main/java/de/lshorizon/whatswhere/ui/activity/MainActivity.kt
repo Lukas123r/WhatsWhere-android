@@ -149,14 +149,29 @@ class MainActivity : AppCompatActivity() {
                 val chipGroup = binding.categoryChipGroup
                 chipGroup.removeAllViews()
 
-                categories.forEach { category ->
+                val allCategory = categories.find { it.name.equals("category_all", ignoreCase = true) }
+                val otherCategories = categories.filter { !it.name.equals("category_all", ignoreCase = true) }
+
+                val sortedOtherCategories = otherCategories.sortedBy { category ->
+                    if (category.resourceId != 0) {
+                        getString(category.resourceId).lowercase()
+                    } else {
+                        category.name.lowercase()
+                    }
+                }
+
+                val finalSortedList = mutableListOf<de.lshorizon.whatswhere.data.dao.Category>()
+                allCategory?.let { finalSortedList.add(it) }
+                finalSortedList.addAll(sortedOtherCategories)
+
+                finalSortedList.forEach { category ->
                     val chip = layoutInflater.inflate(R.layout.category_chip, chipGroup, false) as Chip
                     chip.apply {
                         text = if (category.resourceId != 0) getString(category.resourceId) else category.name
                         isCheckable = true
                         id = View.generateViewId()
                         // Check the "All" chip by default
-                        if (category.name == "category_all") {
+                        if (category.name.equals("category_all", ignoreCase = true)) {
                             isChecked = true
                         }
                     }
@@ -166,7 +181,11 @@ class MainActivity : AppCompatActivity() {
                 chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
                     if (checkedIds.isNotEmpty()) {
                         val chip = group.findViewById<Chip>(checkedIds.first())
-                        mainViewModel.onCategorySelected(chip.text.toString())
+                        val selectedCategory = finalSortedList.find { category ->
+                            val displayedName = if (category.resourceId != 0) getString(category.resourceId) else category.name
+                            displayedName == chip.text.toString()
+                        }
+                        selectedCategory?.let { mainViewModel.onCategorySelected(it.name) }
                     } else {
                         // If no chip is selected, default to "All"
                         mainViewModel.onCategorySelected(getString(R.string.category_all))
