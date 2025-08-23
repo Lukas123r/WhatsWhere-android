@@ -6,11 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import de.lshorizon.whatswhere.R
-import de.lshorizon.whatswhere.data.CategoryRepository
+import de.lshorizon.whatswhere.InventoryApp
 import de.lshorizon.whatswhere.data.dao.Category
 import de.lshorizon.whatswhere.databinding.DialogCategorySelectionBinding
 import de.lshorizon.whatswhere.ui.adapter.CategoryAdapter
@@ -21,12 +21,12 @@ import kotlinx.coroutines.launch
 class CategorySelectionDialogFragment : DialogFragment() {
 
     private lateinit var binding: DialogCategorySelectionBinding
-    private val viewModel: AddItemViewModel by viewModels {
-        val application = requireActivity().application as de.lshorizon.whatswhere.InventoryApp
+    // Shared ViewModel with the hosting Activity; factory ensures required dependencies
+    private val viewModel: AddItemViewModel by activityViewModels {
         AddItemViewModelFactory(
             requireActivity().application,
-            application.database.itemDao(),
-            CategoryRepository(application.database.categoryDao())
+            (requireActivity().application as InventoryApp).database.itemDao(),
+            (requireActivity().application as InventoryApp).categoryRepository
         )
     }
     private lateinit var categoryAdapter: CategoryAdapter

@@ -4,7 +4,8 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "categories")
-data class Category(
-    @PrimaryKey val name: String,
-    val resourceId: Int = 0
+// Firestore expects a public no-arg constructor and mutable fields
+data class Category @JvmOverloads constructor(
+    @PrimaryKey var name: String = "",
+    var resourceId: Int = 0
 )
