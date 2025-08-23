@@ -48,7 +48,6 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
             "language" -> {
                 val languageCode = sharedPreferences?.getString(key, "en") ?: "en"
                 LocaleHelper.setLocale(languageCode)
-                (requireActivity().application as InventoryApp).repopulateCategories()
                 activity?.recreate()
             }
         }

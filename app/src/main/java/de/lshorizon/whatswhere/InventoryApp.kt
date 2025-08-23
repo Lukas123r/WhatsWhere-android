@@ -1,6 +1,7 @@
 package de.lshorizon.whatswhere
 
 import android.app.Application
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.preference.PreferenceManager
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -37,22 +38,33 @@ class InventoryApp : Application() {
         // Benachrichtigungskanal erstellen und Worker planen
         NotificationHelper.createNotificationChannel(this)
         scheduleWarrantyChecks()
+
+        // Call the new function to populate default categories
+        populateDefaultCategoriesIfNeeded()
     }
 
-    fun repopulateCategories() {
-        CoroutineScope(Dispatchers.IO).launch {
-            val categoryDao = database.categoryDao()
-            categoryDao.deleteAll()
-            val categories = listOf(
-                Category("category_all", R.string.category_all),
-                Category("category_documents", R.string.category_documents),
-                Category("category_electronics", R.string.category_electronics),
-                Category("category_household", R.string.category_household),
-                Category("category_miscellaneous", R.string.category_miscellaneous),
-                Category("category_office", R.string.category_office),
-                Category("category_tools", R.string.category_tools)
-            )
-            categoryDao.insertAll(categories)
+    private fun populateDefaultCategoriesIfNeeded() { // Renamed function
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val isFirstRun = sharedPreferences.getBoolean("is_first_run_categories", true)
+
+        if (isFirstRun) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val categoryDao = database.categoryDao()
+                // No need to deleteAll() here, as it's the first run
+                val categories = listOf(
+                    Category("category_all", R.string.category_all),
+                    Category("category_documents", R.string.category_documents),
+                    Category("category_electronics", R.string.category_electronics),
+                    Category("category_household", R.string.category_household),
+                    Category("category_miscellaneous", R.string.category_miscellaneous),
+                    Category("category_office", R.string.category_office),
+                    Category("category_tools", R.string.category_tools)
+                )
+                categoryDao.insertAll(categories)
+
+                // Set the flag to false after populating
+                sharedPreferences.edit().putBoolean("is_first_run_categories", false).apply()
+            }
         }
     }
 

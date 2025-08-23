@@ -20,12 +20,26 @@ class CategoryRepository(private val categoryDao: CategoryDao) {
     suspend fun syncCategories() {
         val userId = currentUserId ?: return
         try {
-            val localCategories = categoryDao.getCategories().first()
+            // 1. Sync pending local categories to Firebase
+            val pendingSyncCategories = categoryDao.getCategories().first().filter { it.isPendingSync }
+            pendingSyncCategories.forEach { category ->
+                try {
+                    FirestoreManager.saveCategory(userId, category)
+                    // If successful, update local category to not be pending sync
+                    categoryDao.insert(category.copy(isPendingSync = false))
+                } catch (e: Exception) {
+                    // Log error but don't stop sync, category remains pending
+                    e.printStackTrace()
+                }
+            }
+
+            // 2. Now proceed with the existing sync logic (Firebase to local, and local-only to Firebase)
+            val localCategories = categoryDao.getCategories().first() // Re-fetch after pending sync
             val firebaseCategories = FirestoreManager.getCategories(userId)
 
-            // Identify local-only categories and push them to Firebase
+            // Identify local-only categories (that are not pending sync anymore) and push them to Firebase
             val localOnlyCategories = localCategories.filter { localCategory ->
-                firebaseCategories.none { it.name == localCategory.name }
+                !localCategory.isPendingSync && firebaseCategories.none { it.name == localCategory.name }
             }
             localOnlyCategories.forEach { localCategory ->
                 FirestoreManager.saveCategory(userId, localCategory)
@@ -54,15 +68,28 @@ class CategoryRepository(private val categoryDao: CategoryDao) {
     }
 
     suspend fun addCategory(category: Category) {
-        val userId = currentUserId ?: return
-        // Save to local database
-        categoryDao.insert(category)
-        // Save to Firebase
-        try {
-            FirestoreManager.saveCategory(userId, category)
-        } catch (e: Exception) {
-            // Handle error, e.g., log it
-            e.printStackTrace()
+        val userId = currentUserId
+        val categoryToSave = if (userId == null) {
+            category.copy(isPendingSync = true) // Mark as pending sync if offline
+        } else {
+            category // No change if online
+        }
+
+        // Always save to local database first
+        categoryDao.insert(categoryToSave)
+
+        if (userId != null) {
+            try {
+                FirestoreManager.saveCategory(userId, category) // Try to save original category to Firebase
+                // If successful, ensure local copy is not marked as pending sync
+                if (categoryToSave.isPendingSync) {
+                    categoryDao.insert(category.copy(isPendingSync = false)) // Update local status
+                }
+            } catch (e: Exception) {
+                // If Firebase save fails, ensure local copy is marked as pending sync
+                categoryDao.insert(category.copy(isPendingSync = true))
+                e.printStackTrace() // Log the error
+            }
         }
     }
 }

@@ -10,7 +10,7 @@ import de.lshorizon.whatswhere.data.dao.Category
 
 @Database(
     entities = [Item::class, Category::class],
-    version = 15, // Increased version due to schema change (added categoryResourceId to Item)
+    version = 16, // Increased version due to schema change (added isPendingSync to Category)
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

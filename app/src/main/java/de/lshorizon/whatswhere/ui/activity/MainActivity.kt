@@ -49,12 +49,7 @@ class MainActivity : AppCompatActivity() {
 
         accountTextView = binding.toolbar.findViewById(R.id.account_textview)
 
-        lifecycleScope.launch {
-            val categories = mainViewModel.categories.first()
-            if (categories.isEmpty()) {
-                (application as InventoryApp).repopulateCategories()
-            }
-        }
+        
 
         setupRecyclerView()
         observeViewModel()
