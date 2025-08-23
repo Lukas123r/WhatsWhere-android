@@ -6,11 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResult
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import de.lshorizon.whatswhere.R
-import de.lshorizon.whatswhere.data.CategoryRepository
+import de.lshorizon.whatswhere.InventoryApp // Gives access to Room DB and repositories
 import de.lshorizon.whatswhere.data.dao.Category
 import de.lshorizon.whatswhere.databinding.DialogCategorySelectionBinding
 import de.lshorizon.whatswhere.ui.adapter.CategoryAdapter
@@ -18,16 +18,14 @@ import de.lshorizon.whatswhere.ui.viewmodel.AddItemViewModel
 import de.lshorizon.whatswhere.ui.viewmodel.AddItemViewModelFactory
 import kotlinx.coroutines.launch
 
+/** Dialog that lets the user pick an existing category or create a new one. */
 class CategorySelectionDialogFragment : DialogFragment() {
 
     private lateinit var binding: DialogCategorySelectionBinding
-    private val viewModel: AddItemViewModel by viewModels {
-        val application = requireActivity().application as de.lshorizon.whatswhere.InventoryApp
-        AddItemViewModelFactory(
-            requireActivity().application,
-            application.database.itemDao(),
-            CategoryRepository(application.database.categoryDao())
-        )
+    // Share AddItemViewModel from the hosting activity using the app's database and repository
+    private val viewModel: AddItemViewModel by activityViewModels {
+        val app = requireActivity().application as InventoryApp // Obtain InventoryApp for dependencies
+        AddItemViewModelFactory(app, app.database.itemDao(), app.categoryRepository)
     }
     private lateinit var categoryAdapter: CategoryAdapter
 
