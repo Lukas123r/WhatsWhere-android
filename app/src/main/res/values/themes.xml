@@ -19,6 +19,7 @@
 
     <style name="App.AlertDialogTheme" parent="ThemeOverlay.Material3.Dialog.Alert">
         <item name="android:windowBackground">@drawable/dialog_background_rounded</item>
+        <item name="colorPrimary">@color/accent_blue</item>
     </style>
 
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
@@ -64,5 +65,7 @@
     <style name="Widget.App.TextInputLayout.OutlinedBox.Rounded" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="shapeAppearance">@style/ShapeAppearance.App.Corner.Rounded</item>
     </style>
+
+    
 
 </resources>

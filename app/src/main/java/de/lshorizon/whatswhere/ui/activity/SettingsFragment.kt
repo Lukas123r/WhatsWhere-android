@@ -11,6 +11,7 @@ import de.lshorizon.whatswhere.R
 import de.lshorizon.whatswhere.ui.util.CacheManager
 import de.lshorizon.whatswhere.ui.util.LocaleHelper
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.util.Locale
 
 class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -26,6 +27,7 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
             true
         }
         updateAppVersionSummary()
+        initLanguagePreference()
     }
 
     override fun onResume() {
@@ -90,6 +92,24 @@ class SettingsFragment : PreferenceFragmentCompat(), SharedPreferences.OnSharedP
             findPreference<Preference>("app_version")?.summary = version
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+    }
+
+    private fun initLanguagePreference() {
+        val sharedPreferences = preferenceManager.sharedPreferences
+        val languagePreference = findPreference<Preference>("language") as? androidx.preference.ListPreference
+
+        // Only set initial value if the user hasn't changed the language manually yet
+        if (sharedPreferences != null && !sharedPreferences.contains("language")) {
+            val currentLocale = if (!AppCompatDelegate.getApplicationLocales().isEmpty) {
+                AppCompatDelegate.getApplicationLocales()[0]
+            } else {
+                Locale.getDefault()
+            }
+
+            if (currentLocale != null) {
+                languagePreference?.value = currentLocale.language
+            }
         }
     }
 }

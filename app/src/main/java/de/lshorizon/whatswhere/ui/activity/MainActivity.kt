@@ -30,6 +30,11 @@ import de.lshorizon.whatswhere.ui.viewmodel.SortOrder
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.google.android.material.chip.Chip
+import android.content.Context
+import android.content.SharedPreferences
+import android.content.res.Configuration
+import androidx.preference.PreferenceManager
+import java.util.Locale
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -43,6 +48,23 @@ class MainActivity : AppCompatActivity() {
     private var accountTextView: TextView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val isFirstLaunch = sharedPreferences.getBoolean("is_first_launch", true)
+
+        if (isFirstLaunch) {
+            val deviceLanguage = Locale.getDefault().language
+            val supportedLanguages = listOf("en", "de", "it", "fr", "es")
+            val languageToSet = if (supportedLanguages.contains(deviceLanguage)) {
+                deviceLanguage
+            } else {
+                "en" // Default to English if device language is not supported
+            }
+            setAppLanguage(this, languageToSet)
+
+            sharedPreferences.edit().putBoolean("is_first_launch", false).apply()
+        }
+
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -237,5 +259,13 @@ class MainActivity : AppCompatActivity() {
             adapter.setViewType(ViewType.LIST)
             toggleButton.setImageResource(R.drawable.ic_view_grid)
         }
+    }
+
+    private fun setAppLanguage(context: Context, languageCode: String) {
+        val locale = Locale(languageCode)
+        Locale.setDefault(locale)
+        val config = Configuration()
+        config.setLocale(locale)
+        context.resources.updateConfiguration(config, context.resources.displayMetrics)
     }
 }
