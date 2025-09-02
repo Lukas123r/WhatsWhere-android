@@ -190,4 +190,20 @@
     <string name="delete_item_confirmation_title">¿Eliminar artículo?</string>
     <string name="delete_item_confirmation_message">¿Estás seguro de que quieres eliminar este artículo? Esta acción no se puede deshacer.</string>
     <string name="cancel">Cancelar</string>
+    <!-- Onboarding (fallback translations) -->
+    <string name="onb_title_welcome">Bienvenido a What’sWhere</string>
+    <string name="onb_desc_welcome">Mantén el control de tus artículos.</string>
+    <string name="onb_title_organize">Organiza y Encuentra</string>
+    <string name="onb_desc_organize">Usa categorías, búsqueda y filtros.</string>
+    <string name="onb_title_scan">Escanear y Añadir</string>
+    <string name="onb_desc_scan">Agrega artículos fácilmente y usa códigos QR.</string>
+    <string name="onb_button_skip">Saltar</string>
+    <string name="onb_button_next">Siguiente</string>
+    <string name="onb_button_start">Empezar</string>
+
+    <string name="category_saved">Categoría guardada</string>
+    <string name="category_saved_offline_sync_later">Categoría guardada localmente y se sincronizará en línea</string>
+
+    <string name="profile_setup_title">Configura tu perfil</string>
+    <string name="profile_setup_subtitle">Introduce tu nombre.</string>
 </resources>
