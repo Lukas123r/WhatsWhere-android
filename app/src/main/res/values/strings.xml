@@ -163,6 +163,10 @@
     <string name="toast_sync_error_no_internet">No internet connection. Could not sync data.</string>
     <string name="toast_sync_error_not_logged_in">Not logged in.</string>
     <string name="toast_sync_error_generic">Synchronization failed: %s</string>
+    <string name="profile_setup_title">Set up your profile</string>
+    <string name="profile_setup_subtitle">Enter your name to personalize your experience.</string>
+    <string name="category_saved">Category saved</string>
+    <string name="category_saved_offline_sync_later">Category saved locally and will sync when online</string>
     <string name="settings_cache_summary_dynamic">Currently using %s</string>
     <string name="dialog_clear_cache_title">Confirm Clear Cache</string>
     <string name="dialog_clear_cache_message">Are you sure you want to delete all cached data? This will free up %s of space.</string>
@@ -180,6 +184,17 @@
     <string name="category_miscellaneous">Miscellaneous</string>
     <string name="category_office">Office</string>
     <string name="category_tools">Tools</string>
+    
+    <!-- Onboarding -->
+    <string name="onb_title_welcome">Welcome to What’sWhere</string>
+    <string name="onb_desc_welcome">Keep track of your items and always know where things are.</string>
+    <string name="onb_title_organize">Organize and Find</string>
+    <string name="onb_desc_organize">Use categories, search, and filters to quickly find your belongings.</string>
+    <string name="onb_title_scan">Scan &amp; Add</string>
+    <string name="onb_desc_scan">Add items easily and use QR codes to identify them.</string>
+    <string name="onb_button_skip">Skip</string>
+    <string name="onb_button_next">Next</string>
+    <string name="onb_button_start">Get Started</string>
 
     
 

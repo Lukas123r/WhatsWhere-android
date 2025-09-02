@@ -2,6 +2,7 @@ package de.lshorizon.whatswhere.ui
 
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.core.content.ContextCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -10,20 +11,20 @@ import kotlinx.coroutines.flow.first
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
-import java.time.temporal.ChronoUnit
 
 class WarrantyWorker(appContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
-        // Prüfen, ob die App die Berechtigung zum Senden von Benachrichtigungen hat
-        if (ContextCompat.checkSelfPermission(
-                applicationContext,
-                android.Manifest.permission.POST_NOTIFICATIONS
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // Wenn keine Berechtigung, Arbeit abbrechen
-            return Result.failure()
+        // Android 13+ benötigt Benachrichtigungsberechtigung
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    applicationContext,
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                return Result.failure()
+            }
         }
 
         val itemDao = (applicationContext as InventoryApp).database.itemDao()
@@ -39,7 +40,6 @@ class WarrantyWorker(appContext: Context, workerParams: WorkerParameters) :
                     .atZone(ZoneId.systemDefault())
                     .toLocalDate()
 
-                // Prüfen, ob das Ablaufdatum in der Zukunft liegt und innerhalb der nächsten 30 Tage
                 if (expirationDate.isAfter(today) && expirationDate.isBefore(thirtyDaysFromNow)) {
                     expiringItems.add(item.name)
                 }
@@ -53,3 +53,4 @@ class WarrantyWorker(appContext: Context, workerParams: WorkerParameters) :
         return Result.success()
     }
 }
+

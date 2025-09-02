@@ -61,6 +61,12 @@ class AccountActivity : AppCompatActivity() {
             viewModel.updateUserName(text.toString())
         }
 
+        binding.nameEditIcon.setOnClickListener {
+            binding.nameEdittext.requestFocus()
+            val imm = getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+            imm.showSoftInput(binding.nameEdittext, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
+        }
+
         binding.logoutButton.setOnClickListener {
             Firebase.auth.signOut()
             val intent = Intent(this, AuthActivity::class.java).apply {

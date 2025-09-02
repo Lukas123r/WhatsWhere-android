@@ -6,6 +6,7 @@ import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.tasks.await
 import de.lshorizon.whatswhere.data.dao.Category
+import android.util.Log
 
 object FirestoreManager {
     private val db = Firebase.firestore
@@ -58,10 +59,14 @@ object FirestoreManager {
     private fun getUserCategoriesCollection(userId: String) = usersCollection.document(userId).collection("categories")
 
     suspend fun saveCategory(userId: String, category: Category) {
-        getUserCategoriesCollection(userId).document(category.name).set(category).await()
+        // Erzwinge konsistente Felder im gespeicherten Dokument
+        val payload = category.copy(userId = userId, isPendingSync = false)
+        Log.d("FirestoreMgr", "saveCategory: userId='$userId', name='${category.name}'")
+        getUserCategoriesCollection(userId).document(category.name).set(payload).await()
     }
 
     suspend fun getCategories(userId: String): List<Category> {
+        Log.d("FirestoreMgr", "getCategories for userId='$userId'")
         return getUserCategoriesCollection(userId).get().await().documents.mapNotNull { it.toObject(Category::class.java) }
     }
 }

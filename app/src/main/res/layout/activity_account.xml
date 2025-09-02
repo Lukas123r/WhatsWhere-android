@@ -78,14 +78,30 @@
                         android:orientation="vertical"
                         android:layout_marginStart="16dp">
 
-                        <EditText
-                            android:id="@+id/name_edittext"
+                        <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="@string/profile_name_hint"
-                            android:background="@android:color/transparent"
-                            android:textStyle="bold"
-                            android:textAppearance="?attr/textAppearanceTitleLarge"/>
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <EditText
+                                android:id="@+id/name_edittext"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:hint="@string/profile_name_hint"
+                                android:background="@android:color/transparent"
+                                android:textStyle="bold"
+                                android:textAppearance="?attr/textAppearanceTitleLarge"/>
+
+                            <ImageView
+                                android:id="@+id/name_edit_icon"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_marginStart="8dp"
+                                android:contentDescription="@string/edit"
+                                android:src="@drawable/ic_edit"/>
+                        </LinearLayout>
 
                         <TextView
                             android:id="@+id/email_textview"

@@ -1,0 +1,36 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Nutzerprofil: nur eigener Zugriff
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // Kategorien des Nutzers als Unterkollektion
+      match /categories/{categoryId} {
+        // Lesen nur durch den Besitzer
+        allow read: if request.auth != null && request.auth.uid == userId;
+
+        // Erstellen erfordert passende userId im neuen Dokument
+        allow create: if request.auth != null
+          && request.auth.uid == userId
+          && request.resource.data.userId == userId;
+
+        // Aktualisieren/Löschen nur durch den Besitzer des existierenden Dokuments
+        allow update, delete: if request.auth != null
+          && request.auth.uid == userId
+          && resource.data.userId == userId;
+      }
+    }
+
+    // Items: Root-Kollektion, streng an Besitzer gebunden
+    match /items/{itemId} {
+      // Lesen (get/list/query) nur für Dokumente des eingeloggten Nutzers
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      // Erstellen nur, wenn userId zum eingeloggten Nutzer passt
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      // Aktualisieren/Löschen nur durch den Besitzer
+      allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+  }
+}

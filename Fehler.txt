@@ -1,0 +1,6 @@
+> Task :app:compileDebugKotlin
+w: file:///D:/AndroidStudioApp/WhatsWhere/app/src/main/java/de/lshorizon/whatswhere/data/CategoryRepository.kt:35:60 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///D:/AndroidStudioApp/WhatsWhere/app/src/main/java/de/lshorizon/whatswhere/ui/activity/MainActivity.kt:265:22 '@Deprecated(...) constructor(@RecentlyNonNull() p0: String!): Locale' is deprecated. Deprecated in Java.
+w: file:///D:/AndroidStudioApp/WhatsWhere/app/src/main/java/de/lshorizon/whatswhere/ui/activity/MainActivity.kt:269:27 '@Deprecated(...) fun updateConfiguration(p0: Configuration!, p1: DisplayMetrics!): Unit' is deprecated. Deprecated in Java.
+w: file:///D:/AndroidStudioApp/WhatsWhere/app/src/main/java/de/lshorizon/whatswhere/util/CategoryLocaleMapper.kt:37:49 '@Deprecated(...) constructor(@RecentlyNonNull() p0: String!): Locale' is deprecated. Deprecated in Java.
+

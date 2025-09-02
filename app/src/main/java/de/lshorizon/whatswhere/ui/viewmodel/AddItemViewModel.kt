@@ -10,6 +10,7 @@ import de.lshorizon.whatswhere.data.FirestoreManager
 import de.lshorizon.whatswhere.data.Item
 import de.lshorizon.whatswhere.data.ItemDao
 import de.lshorizon.whatswhere.data.dao.Category
+import de.lshorizon.whatswhere.R
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,10 +52,11 @@ class AddItemViewModel(application: Application, private val itemDao: ItemDao, p
 
             val selectedCategoryObject = categories.value.find { it.name == categoryName || (it.resourceId != 0 && getApplication<Application>().getString(it.resourceId) == categoryName) }
             val categoryResourceId = selectedCategoryObject?.resourceId ?: 0
+            val canonicalCategoryName = selectedCategoryObject?.name ?: categoryName // store canonical key when possible
 
             var itemToSave = item.copy(
                 userId = user.uid,
-                category = categoryName, // Use the category name from UI
+                category = canonicalCategoryName, // store canonical key when known
                 categoryResourceId = categoryResourceId, // Set the resource ID
                 needsSync = true
             )
@@ -71,6 +73,11 @@ class AddItemViewModel(application: Application, private val itemDao: ItemDao, p
                 itemDao.insert(itemToSave.copy(needsSync = false))
             } catch (e: Exception) {
                 e.printStackTrace()
+                android.widget.Toast.makeText(
+                    getApplication(),
+                    getApplication<Application>().getString(R.string.toast_sync_error_generic, e.message ?: ""),
+                    android.widget.Toast.LENGTH_LONG
+                ).show()
             }
         }
     }

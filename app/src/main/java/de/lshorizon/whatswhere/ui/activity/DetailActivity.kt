@@ -182,9 +182,9 @@ class DetailActivity : AppCompatActivity() {
             .error(R.drawable.ic_image_placeholder)
             .into(binding.itemImage)
 
-        
+        // Kategorie lokalisieren mit Fallbacks
         binding.itemCategory.visibility = View.VISIBLE
-        binding.itemCategory.text = if (item.categoryResourceId != 0) getString(item.categoryResourceId) else item.category
+        binding.itemCategory.text = resolveCategoryText(item)
         binding.itemLocation.text = item.location
         binding.itemQuantity.text = item.quantity.toString()
 
@@ -208,6 +208,16 @@ class DetailActivity : AppCompatActivity() {
         binding.itemModel.text = if (item.modelNumber.isNullOrBlank()) "N/A" else item.modelNumber
         binding.itemSerial.setOnClickListener { copyToClipboard(getString(R.string.label_serial_number), item.serialNumber) }
         binding.itemModel.setOnClickListener { copyToClipboard(getString(R.string.label_model_number), item.modelNumber) }
+    }
+
+    private fun resolveCategoryText(item: Item): String {
+        if (item.categoryResourceId != 0) return getString(item.categoryResourceId)
+        val key = de.lshorizon.whatswhere.util.CategoryLocaleMapper.resolveKeyFromText(this, item.category)
+        if (key != null) {
+            return de.lshorizon.whatswhere.util.CategoryLocaleMapper.currentLabelForKey(this, key)
+                ?: item.category
+        }
+        return item.category
     }
 
     private fun shareItem() {

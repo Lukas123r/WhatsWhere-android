@@ -1,0 +1,25 @@
+---------------------------- PROCESS STARTED (32170) for package de.lshorizon.whatswhere ----------------------------
+2025-09-02 23:52:52.032 32170-32170 CategoryRepo            de.lshorizon.whatswhere              D  syncCategories: start for userId='GDYc3j5AitVw7kGJTI97jeNo1Kk2'
+2025-09-02 23:52:52.361 32170-32170 CategoryRepo            de.lshorizon.whatswhere              D  syncCategories: start for userId='GDYc3j5AitVw7kGJTI97jeNo1Kk2'
+2025-09-02 23:52:52.375 32170-32170 CategoryRepo            de.lshorizon.whatswhere              D  syncCategories: start for userId='GDYc3j5AitVw7kGJTI97jeNo1Kk2'
+2025-09-02 23:52:53.479 32170-32170 CategoryRepo            de.lshorizon.whatswhere              E  syncCategories error: Job was cancelled
+                                                                                                    kotlinx.coroutines.JobCancellationException: Job was cancelled; job=SupervisorJobImpl{Cancelling}@b36a237
+2025-09-02 23:52:53.779 32170-32170 CategoryRepo            de.lshorizon.whatswhere              D  cloud categories fetched: 7
+2025-09-02 23:52:53.783 32170-32170 CategoryRepo            de.lshorizon.whatswhere              D  cloud categories fetched: 7
+2025-09-02 23:52:53.788 32170-32170 CategoryRepo            de.lshorizon.whatswhere              D  inserted/updated 7 categories from cloud locally
+2025-09-02 23:52:53.815 32170-32170 CategoryRepo            de.lshorizon.whatswhere              D  inserted/updated 7 categories from cloud locally
+2025-09-02 23:53:08.457 32170-32170 CategoryRepo            de.lshorizon.whatswhere              D  syncCategories: start for userId='GDYc3j5AitVw7kGJTI97jeNo1Kk2'
+2025-09-02 23:53:09.009 32170-32170 CategoryRepo            de.lshorizon.whatswhere              D  cloud categories fetched: 7
+2025-09-02 23:53:09.181 32170-32170 CategoryRepo            de.lshorizon.whatswhere              D  pushed local-only category 'alles' to cloud
+2025-09-02 23:53:09.279 32170-32170 CategoryRepo            de.lshorizon.whatswhere              D  inserted/updated 7 categories from cloud locally
+---------------------------- PROCESS ENDED (32170) for package de.lshorizon.whatswhere ----------------------------
+---------------------------- PROCESS STARTED (32448) for package de.lshorizon.whatswhere ----------------------------
+2025-09-02 23:53:49.328 32448-32448 CategoryRepo            de.lshorizon.whatswhere              D  syncCategories: start for userId='GDYc3j5AitVw7kGJTI97jeNo1Kk2'
+2025-09-02 23:53:49.694 32448-32448 CategoryRepo            de.lshorizon.whatswhere              D  syncCategories: start for userId='GDYc3j5AitVw7kGJTI97jeNo1Kk2'
+2025-09-02 23:53:49.706 32448-32448 CategoryRepo            de.lshorizon.whatswhere              D  syncCategories: start for userId='GDYc3j5AitVw7kGJTI97jeNo1Kk2'
+2025-09-02 23:53:50.916 32448-32448 CategoryRepo            de.lshorizon.whatswhere              E  syncCategories error: Job was cancelled
+                                                                                                    kotlinx.coroutines.JobCancellationException: Job was cancelled; job=SupervisorJobImpl{Cancelling}@93a03a4
+2025-09-02 23:53:51.128 32448-32448 CategoryRepo            de.lshorizon.whatswhere              D  cloud categories fetched: 8
+2025-09-02 23:53:51.135 32448-32448 CategoryRepo            de.lshorizon.whatswhere              D  cloud categories fetched: 8
+2025-09-02 23:53:51.146 32448-32448 CategoryRepo            de.lshorizon.whatswhere              D  inserted/updated 8 categories from cloud locally
+2025-09-02 23:53:51.236 32448-32448 CategoryRepo            de.lshorizon.whatswhere              D  inserted/updated 8 categories from cloud locally

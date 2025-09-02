@@ -99,7 +99,17 @@ class AddItemActivity : AppCompatActivity() {
     private fun populateUiForEdit(item: Item) {
         binding.editTextName.setText(item.name)
         binding.editTextLocation.setText(item.location)
-        binding.editTextCategory.setText(item.category)
+        // Zeige lokalisierte Kategorie, wenn vorhanden
+        val categoryText = if (item.categoryResourceId != 0) {
+            getString(item.categoryResourceId)
+        } else {
+            // Versuche, den gespeicherten Text auf einen Default-Key zu mappen und lokalisiert anzuzeigen
+            val key = de.lshorizon.whatswhere.util.CategoryLocaleMapper.resolveKeyFromText(this, item.category)
+            if (key != null) {
+                de.lshorizon.whatswhere.util.CategoryLocaleMapper.currentLabelForKey(this, key) ?: item.category
+            } else item.category
+        }
+        binding.editTextCategory.setText(categoryText)
         binding.editTextDescription.setText(item.description)
         binding.editTextQuantity.setText(item.quantity.toString())
         existingCreatedAt = item.createdAt

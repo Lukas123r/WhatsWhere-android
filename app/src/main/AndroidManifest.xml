@@ -22,6 +22,16 @@
         android:localeConfig="@xml/locales_config">
 
         <activity
+            android:name="de.lshorizon.whatswhere.ui.activity.ProfileSetupActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WhatsWhere" />
+
+        <activity
+            android:name="de.lshorizon.whatswhere.ui.activity.OnboardingActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WhatsWhere" />
+
+        <activity
             android:name="de.lshorizon.whatswhere.ui.activity.AuthActivity"
             android:exported="true"
             android:theme="@style/Theme.App.Starting">

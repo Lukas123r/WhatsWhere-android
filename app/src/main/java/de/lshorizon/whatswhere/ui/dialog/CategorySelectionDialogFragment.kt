@@ -17,6 +17,9 @@ import de.lshorizon.whatswhere.ui.adapter.CategoryAdapter
 import de.lshorizon.whatswhere.ui.viewmodel.AddItemViewModel
 import de.lshorizon.whatswhere.ui.viewmodel.AddItemViewModelFactory
 import kotlinx.coroutines.launch
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
+import android.widget.Toast
 
 class CategorySelectionDialogFragment : DialogFragment() {
 
@@ -65,6 +68,12 @@ class CategorySelectionDialogFragment : DialogFragment() {
             val newCategoryName = binding.editTextNewCategory.text.toString().trim()
             if (newCategoryName.isNotEmpty()) {
                 viewModel.addCategory(Category(newCategoryName))
+                val user = Firebase.auth.currentUser
+                if (user == null) {
+                    Toast.makeText(requireContext(), getString(R.string.category_saved_offline_sync_later), Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), getString(R.string.category_saved), Toast.LENGTH_SHORT).show()
+                }
                 setResult(newCategoryName)
             }
             true

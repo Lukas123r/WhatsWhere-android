@@ -43,6 +43,15 @@ class AuthActivity : AppCompatActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
 
+        // Show onboarding if not completed
+        val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(this)
+        val onboardingDone = prefs.getBoolean("onboarding_completed", false)
+        if (!onboardingDone) {
+            startActivity(Intent(this, OnboardingActivity::class.java))
+            finish()
+            return
+        }
+
         auth = Firebase.auth
         if (auth.currentUser != null) {
             navigateToMainApp()
@@ -259,8 +268,29 @@ class AuthActivity : AppCompatActivity() {
     }
 
     private fun navigateToMainApp() {
-        val intent = Intent(this, MainActivity::class.java)
-        startActivity(intent)
-        finish()
+        // After login, ensure profile exists and route to ProfileSetup if name missing
+        lifecycleScope.launch {
+            val user = Firebase.auth.currentUser
+            if (user != null) {
+                try {
+                    val profile = de.lshorizon.whatswhere.data.FirestoreManager.getOrCreateUserProfile(user)
+                    // Kick off categories sync
+                    try {
+                        val app = application as de.lshorizon.whatswhere.InventoryApp
+                        de.lshorizon.whatswhere.data.CategoryRepository(app.database.categoryDao()).syncCategories()
+                    } catch (_: Exception) { }
+
+                    if (profile.name.isBlank()) {
+                        startActivity(Intent(this@AuthActivity, ProfileSetupActivity::class.java))
+                    } else {
+                        startActivity(Intent(this@AuthActivity, MainActivity::class.java))
+                    }
+                    finish()
+                    return@launch
+                } catch (_: Exception) { /* fall through to main */ }
+            }
+            startActivity(Intent(this@AuthActivity, MainActivity::class.java))
+            finish()
+        }
     }
 }

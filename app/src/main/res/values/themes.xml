@@ -15,6 +15,7 @@
 
         <item name="popupMenuStyle">@style/Widget.App.PopupMenu</item>
         <item name="alertDialogTheme">@style/App.AlertDialogTheme</item>
+        <item name="android:listChoiceIndicatorSingle">@color/list_choice_indicator_color</item>
     </style>
 
     <style name="App.AlertDialogTheme" parent="ThemeOverlay.Material3.Dialog.Alert">

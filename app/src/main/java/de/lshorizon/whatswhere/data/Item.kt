@@ -1,11 +1,15 @@
 package de.lshorizon.whatswhere.data
 
 import android.os.Parcelable
+import androidx.annotation.Keep
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.google.firebase.firestore.DocumentId
+import com.google.firebase.firestore.IgnoreExtraProperties
 import kotlinx.parcelize.Parcelize
 
+@Keep
+@IgnoreExtraProperties
 @Parcelize
 @Entity(tableName = "inventory_items")
 data class Item(

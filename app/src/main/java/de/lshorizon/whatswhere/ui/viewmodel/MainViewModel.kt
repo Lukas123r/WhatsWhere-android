@@ -11,6 +11,7 @@ import de.lshorizon.whatswhere.data.dao.Category
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import de.lshorizon.whatswhere.data.CategoryRepository
+import de.lshorizon.whatswhere.util.CategoryLocaleMapper
 
 enum class SortOrder {
     BY_NAME_ASC, BY_NAME_DESC, BY_DATE_NEWEST, BY_DATE_OLDEST
@@ -30,7 +31,7 @@ class MainViewModel(
     private val _searchQuery = MutableStateFlow("")
     private val _sortOrder = MutableStateFlow(SortOrder.BY_NAME_ASC)
     val sortOrder: StateFlow<SortOrder> = _sortOrder.asStateFlow()
-    private val _category = MutableStateFlow("All")
+    private val _categoryKey = MutableStateFlow("all")
 
     val categories: StateFlow<List<Category>> = categoryRepository.getCategories()
         .map { categories ->
@@ -74,11 +75,13 @@ class MainViewModel(
             itemDao.getAllItems(),
             _searchQuery,
             _sortOrder,
-            _category
+            _categoryKey
         ) { items, query, sortOrder, category ->
 
             val filteredItems = items.filter { item ->
-                val matchesCategory = category == "All" || item.category == category
+                val selectedKey = category.lowercase()
+                val itemKey = canonicalizeCategory(item)
+                val matchesCategory = selectedKey == "all" || itemKey == selectedKey
                 val matchesQuery = query.isBlank() ||
                         item.name.contains(query, ignoreCase = true) ||
                         item.location.contains(query, ignoreCase = true) ||
@@ -107,7 +110,10 @@ class MainViewModel(
 
     fun onSearchQueryChanged(query: String) { _searchQuery.value = query }
     fun onSortOrderSelected(sortOrder: SortOrder) { _sortOrder.value = sortOrder }
-    fun onCategorySelected(category: String) { _category.value = category }
+    fun onCategorySelected(selectedText: String) {
+        val key = mapSelectedTextToKey(selectedText)
+        _categoryKey.value = key
+    }
 
     fun toggleViewType() {
         _viewType.value = if (_viewType.value == ViewType.LIST) ViewType.GRID else ViewType.LIST
@@ -123,6 +129,26 @@ class MainViewModel(
         val sharedPrefs = getApplication<Application>().getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
         val viewTypeName = sharedPrefs.getString("view_type", ViewType.LIST.name)
         _viewType.value = ViewType.valueOf(viewTypeName ?: ViewType.LIST.name)
+    }
+
+    private fun canonicalizeCategory(item: Item): String {
+        if (item.categoryResourceId != 0) {
+            return CategoryLocaleMapper.keyForResId(item.categoryResourceId) ?: item.category.lowercase()
+        }
+        val resolved = CategoryLocaleMapper.resolveKeyFromText(getApplication(), item.category)
+        return resolved ?: item.category.lowercase()
+    }
+
+    private fun mapSelectedTextToKey(text: String): String {
+        val t = text.lowercase()
+        // 'All' special handling
+        if (t == getApplication<Application>().getString(R.string.category_all).lowercase() || t == "all") return "all"
+        // Localized to key across locales
+        CategoryLocaleMapper.resolveKeyFromText(getApplication(), text)?.let { return it }
+        // Direct key match
+        if (CategoryLocaleMapper.resIdForKey(text) != null) return text
+        // Custom category: use text as key
+        return text
     }
 
 
