@@ -13,6 +13,7 @@
         android:layout_height="wrap_content"
         android:clickable="false"
         android:focusable="false"
+        android:buttonTint="@color/list_choice_indicator_color"
         android:scaleX="0.8"
         android:scaleY="0.8" />
 

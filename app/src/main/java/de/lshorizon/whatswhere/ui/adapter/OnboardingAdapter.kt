@@ -24,4 +24,3 @@ class OnboardingAdapter(private val pages: List<OnboardingPage>) : RecyclerView.
         holder.binding.description.setText(p.descRes)
     }
 }
-

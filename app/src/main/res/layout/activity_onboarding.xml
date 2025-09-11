@@ -12,37 +12,50 @@
         android:layout_weight="1"
         android:overScrollMode="never" />
 
-    <LinearLayout
-        android:id="@+id/dots"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:orientation="horizontal"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp" />
-
+    <!-- Bottom bar: Skip | Dots (center) | Next -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="end">
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="32dp"
+        android:gravity="center_vertical">
 
-        <Button
-            android:id="@+id/btnSkip"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/onb_button_skip" />
+            android:layout_weight="1"
+            android:gravity="end">
+            <Button
+                android:id="@+id/btnSkip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/onb_button_skip" />
+        </LinearLayout>
 
-        <Space
-            android:layout_width="16dp"
-            android:layout_height="wrap_content" />
-
-        <Button
-            android:id="@+id/btnNext"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@string/onb_button_next" />
+            android:layout_weight="1"
+            android:gravity="center">
+            <LinearLayout
+                android:id="@+id/dots"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="start">
+            <Button
+                android:id="@+id/btnNext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/onb_button_next" />
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>
-

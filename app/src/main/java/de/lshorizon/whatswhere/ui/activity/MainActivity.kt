@@ -46,6 +46,7 @@ class MainActivity : AppCompatActivity() {
     }
     private lateinit var adapter: ItemAdapter
     private var accountTextView: TextView? = null
+    private var selectedCategoryText: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -70,6 +71,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         accountTextView = binding.toolbar.findViewById(R.id.account_textview)
+        selectedCategoryText = getString(R.string.category_all)
 
         
 
@@ -172,10 +174,8 @@ class MainActivity : AppCompatActivity() {
                         text = if (category.resourceId != 0) getString(category.resourceId) else category.name
                         isCheckable = true
                         id = View.generateViewId()
-                        // Check the "All" chip by default
-                        if (category.name == "all") {
-                            isChecked = true
-                        }
+                        // Reflect the current selection (defaults to "All")
+                        isChecked = text.toString() == selectedCategoryText
                     }
                     chipGroup.addView(chip)
                 }
@@ -183,10 +183,25 @@ class MainActivity : AppCompatActivity() {
                 chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
                     if (checkedIds.isNotEmpty()) {
                         val chip = group.findViewById<Chip>(checkedIds.first())
-                        mainViewModel.onCategorySelected(chip.text.toString())
+                        selectedCategoryText = chip.text.toString()
+                        mainViewModel.onCategorySelected(selectedCategoryText)
                     } else {
-                        // If no chip is selected, default to "All"
-                        mainViewModel.onCategorySelected(getString(R.string.category_all))
+                        // If user taps an already-selected chip, ChipGroup clears selection.
+                        // We want to default back to "All" and visually reselect it.
+                        val allText = getString(R.string.category_all)
+                        var allChip: Chip? = null
+                        for (i in 0 until group.childCount) {
+                            val child = group.getChildAt(i)
+                            if (child is Chip) {
+                                if (child.text?.toString() == allText || child.text?.toString()?.lowercase() == "all") {
+                                    allChip = child
+                                    break
+                                }
+                            }
+                        }
+                        allChip?.isChecked = true
+                        selectedCategoryText = allText
+                        mainViewModel.onCategorySelected(allText)
                     }
                 }
             }
@@ -217,8 +232,11 @@ class MainActivity : AppCompatActivity() {
 
         binding.toolbar.findViewById<View>(R.id.sort_button).setOnClickListener {
             val currentSortIndex = mainViewModel.sortOrder.value.ordinal
-            SortSelectionDialogFragment.newInstance(currentSortIndex)
-                .show(supportFragmentManager, SortSelectionDialogFragment.TAG)
+            // Prevent opening multiple dialogs on rapid taps
+            if (supportFragmentManager.findFragmentByTag(SortSelectionDialogFragment.TAG) == null) {
+                SortSelectionDialogFragment.newInstance(currentSortIndex)
+                    .show(supportFragmentManager, SortSelectionDialogFragment.TAG)
+            }
         }
 
         binding.toolbar.findViewById<ImageButton>(R.id.view_toggle_button).setOnClickListener {

@@ -53,7 +53,7 @@ class OnboardingActivity : AppCompatActivity() {
         )
         pages.add(
             OnboardingPage(
-                imageRes = de.lshorizon.whatswhere.R.drawable.ic_qr_code,
+                imageRes = de.lshorizon.whatswhere.R.drawable.ic_qr_code_themed,
                 titleRes = de.lshorizon.whatswhere.R.string.onb_title_scan,
                 descRes = de.lshorizon.whatswhere.R.string.onb_desc_scan
             )
@@ -129,4 +129,3 @@ class OnboardingActivity : AppCompatActivity() {
         finish()
     }
 }
-

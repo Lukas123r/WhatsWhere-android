@@ -199,7 +199,7 @@
     <string name="onb_desc_scan">Füge Elemente einfach hinzu und nutze QR-Codes.</string>
     <string name="onb_button_skip">Überspringen</string>
     <string name="onb_button_next">Weiter</string>
-    <string name="onb_button_start">Los geht’s</string>
+    <string name="onb_button_start">Starten</string>
 
     <string name="category_saved">Kategorie gespeichert</string>
     <string name="category_saved_offline_sync_later">Kategorie lokal gespeichert und wird online synchronisiert</string>

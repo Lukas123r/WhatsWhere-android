@@ -23,6 +23,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.first
 import de.lshorizon.whatswhere.util.CategoryLocaleMapper
 import java.util.concurrent.TimeUnit
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.auth.ktx.auth
 
 class InventoryApp : Application() {
     val database: AppDatabase by lazy { AppDatabase.getDatabase(this) }
@@ -51,6 +53,7 @@ class InventoryApp : Application() {
         // Kategorien mit Cloud synchronisieren (früh im App-Start)
         CoroutineScope(Dispatchers.IO).launch {
             try {
+                purgeErroneousStatusCategoriesIfAny()
                 categoryRepository.syncCategories()
             } catch (_: Exception) {
                 // Ignorieren, z. B. offline – ViewModel-Refresh synchronisiert später erneut
@@ -103,7 +106,8 @@ class InventoryApp : Application() {
             if (!hasPermission) return
         }
 
-        val warrantyCheckRequest = PeriodicWorkRequestBuilder<WarrantyWorker>(24, TimeUnit.HOURS).build()
+        val warrantyCheckRequest =
+            PeriodicWorkRequestBuilder<WarrantyWorker>(24, TimeUnit.HOURS).build()
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "warranty_check_work",
             ExistingPeriodicWorkPolicy.KEEP,
@@ -149,7 +153,8 @@ class InventoryApp : Application() {
                     } else {
                         val current = item.category
                         // Versuche Key direkt oder via lokalisierte Strings (über alle unterstützten Sprachen)
-                        val resolved = CategoryLocaleMapper.resolveKeyFromText(this@InventoryApp, current)
+                        val resolved =
+                            CategoryLocaleMapper.resolveKeyFromText(this@InventoryApp, current)
                         if (resolved != null) {
                             newKey = resolved
                             newResId = CategoryLocaleMapper.resIdForKey(resolved) ?: 0
@@ -158,7 +163,13 @@ class InventoryApp : Application() {
 
                     if (newKey != null) {
                         if (item.category != newKey || item.categoryResourceId != newResId) {
-                            itemDao.update(item.copy(category = newKey!!, categoryResourceId = newResId, needsSync = true))
+                            itemDao.update(
+                                item.copy(
+                                    category = newKey!!,
+                                    categoryResourceId = newResId,
+                                    needsSync = true
+                                )
+                            )
                             changed = true
                         }
                     }
@@ -171,6 +182,33 @@ class InventoryApp : Application() {
             } catch (_: Exception) {
                 // still try next start
             }
+        }
+    }
+
+    private suspend fun purgeErroneousStatusCategoriesIfAny() {
+        try {
+            val dao = database.categoryDao()
+            // Lösche Einträge mit falschen Resource-IDs (Status-/Toast-Texte)
+            dao.deleteByResourceIds(
+                listOf(
+                    R.string.category_saved,
+                    R.string.category_saved_offline_sync_later
+                )
+            )
+
+            // Lösche Einträge, deren Name fälschlich ein Status-/Toast-Text ist
+            val badNames = listOf(
+                getString(R.string.category_saved),
+                getString(R.string.category_saved_offline_sync_later)
+            )
+            val currentUid = Firebase.auth.currentUser?.uid ?: ""
+            for (n in badNames) {
+                database.categoryDao().deleteUserCategoryByName("", n)
+                if (currentUid.isNotEmpty()) database.categoryDao()
+                    .deleteUserCategoryByName(currentUid, n)
+            }
+        } catch (_: Exception) {
+            // best-effort Cleanup, Fehler hier ignorieren
         }
     }
 }

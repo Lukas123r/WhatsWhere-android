@@ -15,12 +15,20 @@
 
         <item name="popupMenuStyle">@style/Widget.App.PopupMenu</item>
         <item name="alertDialogTheme">@style/App.AlertDialogTheme</item>
-        <item name="android:listChoiceIndicatorSingle">@color/list_choice_indicator_color</item>
+        <item name="materialAlertDialogTheme">@style/App.AlertDialogTheme</item>
     </style>
 
     <style name="App.AlertDialogTheme" parent="ThemeOverlay.Material3.Dialog.Alert">
         <item name="android:windowBackground">@drawable/dialog_background_rounded</item>
         <item name="colorPrimary">@color/accent_blue</item>
+        <!-- Ensure radio/check indicators in single-choice lists are visible -->
+        <item name="colorControlActivated">@color/accent_blue</item>
+    </style>
+
+    <!-- Transparent wrapper theme to avoid initial system background flash in custom-view dialogs -->
+    <style name="App.TransparentDialogTheme" parent="ThemeOverlay.Material3.Dialog">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="colorSurface">@android:color/transparent</item>
     </style>
 
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">

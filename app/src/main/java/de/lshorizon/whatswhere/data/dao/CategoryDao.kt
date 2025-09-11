@@ -30,4 +30,7 @@ interface CategoryDao {
 
     @Query("DELETE FROM categories WHERE userId = :userId AND LOWER(name) = LOWER(:name)")
     suspend fun deleteUserCategoryByName(userId: String, name: String)
+
+    @Query("DELETE FROM categories WHERE resourceId IN (:resIds)")
+    suspend fun deleteByResourceIds(resIds: List<Int>)
 }

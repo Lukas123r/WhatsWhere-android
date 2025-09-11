@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center_horizontal"
+    android:gravity="center"
     android:padding="16dp">
 
     <ImageView
@@ -19,7 +19,9 @@
         android:layout_height="wrap_content"
         android:textSize="22sp"
         android:textStyle="bold"
-        android:layout_marginTop="24dp" />
+        android:layout_marginTop="24dp"
+        android:gravity="center"
+        android:textAlignment="center" />
 
     <TextView
         android:id="@+id/description"
@@ -30,4 +32,3 @@
         android:padding="8dp" />
 
 </LinearLayout>
-

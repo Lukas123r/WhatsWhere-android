@@ -16,6 +16,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -25,6 +26,17 @@ class AddItemViewModel(application: Application, private val itemDao: ItemDao, p
     val itemToEdit = _itemToEdit.asStateFlow()
 
     val categories = categoryRepository.getCategories()
+        .map { list ->
+            val ctx = getApplication<Application>()
+            val bad1 = ctx.getString(R.string.category_saved)
+            val bad2 = ctx.getString(R.string.category_saved_offline_sync_later)
+            list.filterNot { c ->
+                c.resourceId == R.string.category_saved ||
+                c.resourceId == R.string.category_saved_offline_sync_later ||
+                c.name.equals(bad1, ignoreCase = true) ||
+                c.name.equals(bad2, ignoreCase = true)
+            }
+        }
         .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
 
     fun loadItem(itemId: String) {
@@ -41,7 +53,26 @@ class AddItemViewModel(application: Application, private val itemDao: ItemDao, p
 
     fun addCategory(category: Category) {
         viewModelScope.launch {
-            categoryRepository.addCategory(category)
+            // Canonicalize input: map localized default labels to default keys
+            val raw = category.name.trim()
+            if (raw.isEmpty()) return@launch
+
+            val app = getApplication<Application>()
+            val defaultKey = de.lshorizon.whatswhere.util.CategoryLocaleMapper.resolveKeyFromText(app, raw)
+
+            // Guard: ignore accidental status/toast texts
+            val bad1 = app.getString(R.string.category_saved)
+            val bad2 = app.getString(R.string.category_saved_offline_sync_later)
+            if (raw.equals(bad1, true) || raw.equals(bad2, true)) return@launch
+
+            // Do not add any predefined default category (including "all"): they already exist
+            if (defaultKey != null) return@launch
+
+            val canonicalName = raw
+            val resId = 0
+
+            val toSave = category.copy(name = canonicalName, resourceId = resId)
+            categoryRepository.addCategory(toSave)
         }
     }
 

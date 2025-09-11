@@ -35,8 +35,16 @@ class MainViewModel(
 
     val categories: StateFlow<List<Category>> = categoryRepository.getCategories()
         .map { categories ->
+            val bad1 = getApplication<Application>().getString(R.string.category_saved)
+            val bad2 = getApplication<Application>().getString(R.string.category_saved_offline_sync_later)
+            val cleaned = categories.filterNot { c ->
+                c.resourceId == R.string.category_saved ||
+                c.resourceId == R.string.category_saved_offline_sync_later ||
+                c.name.equals(bad1, ignoreCase = true) ||
+                c.name.equals(bad2, ignoreCase = true)
+            }
             val allCategory = Category("all", R.string.category_all)
-            val sortedCategories = categories
+            val sortedCategories = cleaned
                 .filter { category ->
                     val isAllCategoryByName = category.name.lowercase() == "all"
                     val isAllCategoryByResourceId = category.resourceId == R.string.category_all
